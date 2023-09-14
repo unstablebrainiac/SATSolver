@@ -1,0 +1,4418 @@
+c Supposedly, Albert Einstein wrote this riddle, and said 98% of the people could not solve it.
+c There are five houses in five different colors. In each house lives a man with a different nationality.
+c The five owners drink a certain type of beverage, smoke a certain brand of cigar, and keep a certain pet.
+c No owners have the same pet, smoke the same brand of cigar or drink the same beverage.
+c The question is: “Who owns the fish?”
+
+c Hints:
+c The Brit lives in the red house.
+c The Swede keeps dogs as pets.
+c The Dane drinks tea.
+c The green house is on the left of the white house.
+c The green house’s owner drinks coffee.
+c The person who smokes Pall Mall rears birds.
+c The owner of the yellow house smokes Dunhill.
+c The man living in the center house drinks milk.
+c The Norwegian lives in the first house.
+c The man who smokes Blends lives next to the one who keeps cats.
+c The man who keeps the horse lives next to the man who smokes Dunhill.
+c The owner who smokes Bluemasters drinks beer.
+c The German smokes Prince.
+c The Norwegian lives next to the blue house.
+c The man who smokes Blends has a neighbor who drinks water.
+
+c In order to solve the puzzle, you have to make some assumptions:
+c The owner is the resident of each house.
+c One of the residents owns the fish.
+c The term neighbor in the last hint refers only to a directly adjacent neighbor.
+c The houses are on the same side of the street.
+c They are next to each other, and are ordered from left to right as you face them rather than standing in front of a house facing the street (i.e. facing the same direction as the house).
+
+c Encoding the problem in CNF:
+c First, we need to define a set of propositions. We select any two attributes out of 6 [nationality, house position, house colour, cigar brand, beverage, pet] and define 5x5 = 25 propositions for each pair of attributes.
+c So, in total, we have 25x6C2 = 25x15 = 375 propositions.
+c We will use alphabetical ordering for each of the values of the variables
+c We then define the propositions as follows:
+c For i in [1, 25], Proposition i = Person [(i + 4) / 5] lives in house number [(i + 4) % 5 + 1]
+c For i in [26, 50], Proposition i = Person [(i + 4) / 5] has a house of colour [(i + 4) % 5 + 1]
+c For i in [51, 75], Proposition i = Person [(i + 4) / 5] smokes [(i + 4) % 5 + 1] brand of cigar
+c For i in [76, 100], Proposition i = Person [(i + 4) / 5] drinks [(i + 4) % 5 + 1] beverage
+c For i in [101, 125], Proposition i = Person [(i + 4) / 5] has [(i + 4) % 5 + 1] pet
+c For i in [126, 150], Proposition i = House number [(i + 4) / 5] is of colour [(i + 4) % 5 + 1]
+c For i in [151, 175], Proposition i = The owner of house number [(i + 4) / 5] smokes cigar [(i + 4) % 5 + 1]
+c For i in [176, 200], Proposition i = The owner of house number [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
+c For i in [201, 225], Proposition i = The owner of house number [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
+c For i in [226, 250], Proposition i = The owner of the house of colour [(i + 4) / 5] smokes cigar [(i + 4) % 5 + 1]
+c For i in [251, 275], Proposition i = The owner of the house of colour [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
+c For i in [276, 300], Proposition i = The owner of the house of colour [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
+c For i in [301, 325], Proposition i = The person who smokes cigar [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
+c For i in [326, 350], Proposition i = The person who smokes cigar [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
+c For i in [351, 375], Proposition i = The person who drinks beverage [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
+c Here is the complete list of propositions generated using the above rules:
+c 1. The Brit lives in the first house
+c 2. The Brit lives in the second house
+c 3. The Brit lives in the third house
+c 4. The Brit lives in the fourth house
+c 5. The Brit lives in the fifth house
+c 6. The Dane lives in the first house
+c 7. The Dane lives in the second house
+c 8. The Dane lives in the third house
+c 9. The Dane lives in the fourth house
+c 10. The Dane lives in the fifth house
+c 11. The German lives in the first house
+c 12. The German lives in the second house
+c 13. The German lives in the third house
+c 14. The German lives in the fourth house
+c 15. The German lives in the fifth house
+c 16. The Norwegian lives in the first house
+c 17. The Norwegian lives in the second house
+c 18. The Norwegian lives in the third house
+c 19. The Norwegian lives in the fourth house
+c 20. The Norwegian lives in the fifth house
+c 21. The Swede lives in the first house
+c 22. The Swede lives in the second house
+c 23. The Swede lives in the third house
+c 24. The Swede lives in the fourth house
+c 25. The Swede lives in the fifth house
+c 26. The Brit lives in the blue house
+c 27. The Brit lives in the green house
+c 28. The Brit lives in the red house
+c 29. The Brit lives in the white house
+c 30. The Brit lives in the yellow house
+c 31. The Dane lives in the blue house
+c 32. The Dane lives in the green house
+c 33. The Dane lives in the red house
+c 34. The Dane lives in the white house
+c 35. The Dane lives in the yellow house
+c 36. The German lives in the blue house
+c 37. The German lives in the green house
+c 38. The German lives in the red house
+c 39. The German lives in the white house
+c 40. The German lives in the yellow house
+c 41. The Norwegian lives in the blue house
+c 42. The Norwegian lives in the green house
+c 43. The Norwegian lives in the red house
+c 44. The Norwegian lives in the white house
+c 45. The Norwegian lives in the yellow house
+c 46. The Swede lives in the blue house
+c 47. The Swede lives in the green house
+c 48. The Swede lives in the red house
+c 49. The Swede lives in the white house
+c 50. The Swede lives in the yellow house
+c 51. The Brit smokes Blends
+c 52. The Brit smokes Bluemasters
+c 53. The Brit smokes Dunhill
+c 54. The Brit smokes Pall Mall
+c 55. The Brit smokes Prince
+c 56. The Dane smokes Blends
+c 57. The Dane smokes Bluemasters
+c 58. The Dane smokes Dunhill
+c 59. The Dane smokes Pall Mall
+c 60. The Dane smokes Prince
+c 61. The German smokes Blends
+c 62. The German smokes Bluemasters
+c 63. The German smokes Dunhill
+c 64. The German smokes Pall Mall
+c 65. The German smokes Prince
+c 66. The Norwegian smokes Blends
+c 67. The Norwegian smokes Bluemasters
+c 68. The Norwegian smokes Dunhill
+c 69. The Norwegian smokes Pall Mall
+c 70. The Norwegian smokes Prince
+c 71. The Swede smokes Blends
+c 72. The Swede smokes Bluemasters
+c 73. The Swede smokes Dunhill
+c 74. The Swede smokes Pall Mall
+c 75. The Swede smokes Prince
+c 76. The Brit drinks beer
+c 77. The Brit drinks coffee
+c 78. The Brit drinks milk
+c 79. The Brit drinks tea
+c 80. The Brit drinks water
+c 81. The Dane drinks beer
+c 82. The Dane drinks coffee
+c 83. The Dane drinks milk
+c 84. The Dane drinks tea
+c 85. The Dane drinks water
+c 86. The German drinks beer
+c 87. The German drinks coffee
+c 88. The German drinks milk
+c 89. The German drinks tea
+c 90. The German drinks water
+c 91. The Norwegian drinks beer
+c 92. The Norwegian drinks coffee
+c 93. The Norwegian drinks milk
+c 94. The Norwegian drinks tea
+c 95. The Norwegian drinks water
+c 96. The Swede drinks beer
+c 97. The Swede drinks coffee
+c 98. The Swede drinks milk
+c 99. The Swede drinks tea
+c 100. The Swede drinks water
+c 101. The Brit has a bird
+c 102. The Brit has a cat
+c 103. The Brit has a dog
+c 104. The Brit has a fish
+c 105. The Brit has a horse
+c 106. The Dane has a bird
+c 107. The Dane has a cat
+c 108. The Dane has a dog
+c 109. The Dane has a fish
+c 110. The Dane has a horse
+c 111. The German has a bird
+c 112. The German has a cat
+c 113. The German has a dog
+c 114. The German has a fish
+c 115. The German has a horse
+c 116. The Norwegian has a bird
+c 117. The Norwegian has a cat
+c 118. The Norwegian has a dog
+c 119. The Norwegian has a fish
+c 120. The Norwegian has a horse
+c 121. The Swede has a bird
+c 122. The Swede has a cat
+c 123. The Swede has a dog
+c 124. The Swede has a fish
+c 125. The Swede has a horse
+c 126. The first house is blue
+c 127. The first house is green
+c 128. The first house is red
+c 129. The first house is white
+c 130. The first house is yellow
+c 131. The second house is blue
+c 132. The second house is green
+c 133. The second house is red
+c 134. The second house is white
+c 135. The second house is yellow
+c 136. The third house is blue
+c 137. The third house is green
+c 138. The third house is red
+c 139. The third house is white
+c 140. The third house is yellow
+c 141. The fourth house is blue
+c 142. The fourth house is green
+c 143. The fourth house is red
+c 144. The fourth house is white
+c 145. The fourth house is yellow
+c 146. The fifth house is blue
+c 147. The fifth house is green
+c 148. The fifth house is red
+c 149. The fifth house is white
+c 150. The fifth house is yellow
+c 151. The owner of the first house smokes Blends
+c 152. The owner of the first house smokes Bluemasters
+c 153. The owner of the first house smokes Dunhill
+c 154. The owner of the first house smokes Pall Mall
+c 155. The owner of the first house smokes Prince
+c 156. The owner of the second house smokes Blends
+c 157. The owner of the second house smokes Bluemasters
+c 158. The owner of the second house smokes Dunhill
+c 159. The owner of the second house smokes Pall Mall
+c 160. The owner of the second house smokes Prince
+c 161. The owner of the third house smokes Blends
+c 162. The owner of the third house smokes Bluemasters
+c 163. The owner of the third house smokes Dunhill
+c 164. The owner of the third house smokes Pall Mall
+c 165. The owner of the third house smokes Prince
+c 166. The owner of the fourth house smokes Blends
+c 167. The owner of the fourth house smokes Bluemasters
+c 168. The owner of the fourth house smokes Dunhill
+c 169. The owner of the fourth house smokes Pall Mall
+c 170. The owner of the fourth house smokes Prince
+c 171. The owner of the fifth house smokes Blends
+c 172. The owner of the fifth house smokes Bluemasters
+c 173. The owner of the fifth house smokes Dunhill
+c 174. The owner of the fifth house smokes Pall Mall
+c 175. The owner of the fifth house smokes Prince
+c 176. The owner of the first house drinks beer
+c 177. The owner of the first house drinks coffee
+c 178. The owner of the first house drinks milk
+c 179. The owner of the first house drinks tea
+c 180. The owner of the first house drinks water
+c 181. The owner of the second house drinks beer
+c 182. The owner of the second house drinks coffee
+c 183. The owner of the second house drinks milk
+c 184. The owner of the second house drinks tea
+c 185. The owner of the second house drinks water
+c 186. The owner of the third house drinks beer
+c 187. The owner of the third house drinks coffee
+c 188. The owner of the third house drinks milk
+c 189. The owner of the third house drinks tea
+c 190. The owner of the third house drinks water
+c 191. The owner of the fourth house drinks beer
+c 192. The owner of the fourth house drinks coffee
+c 193. The owner of the fourth house drinks milk
+c 194. The owner of the fourth house drinks tea
+c 195. The owner of the fourth house drinks water
+c 196. The owner of the fifth house drinks beer
+c 197. The owner of the fifth house drinks coffee
+c 198. The owner of the fifth house drinks milk
+c 199. The owner of the fifth house drinks tea
+c 200. The owner of the fifth house drinks water
+c 201. The owner of the first house has a bird
+c 202. The owner of the first house has a cat
+c 203. The owner of the first house has a dog
+c 204. The owner of the first house has a fish
+c 205. The owner of the first house has a horse
+c 206. The owner of the second house has a bird
+c 207. The owner of the second house has a cat
+c 208. The owner of the second house has a dog
+c 209. The owner of the second house has a fish
+c 210. The owner of the second house has a horse
+c 211. The owner of the third house has a bird
+c 212. The owner of the third house has a cat
+c 213. The owner of the third house has a dog
+c 214. The owner of the third house has a fish
+c 215. The owner of the third house has a horse
+c 216. The owner of the fourth house has a bird
+c 217. The owner of the fourth house has a cat
+c 218. The owner of the fourth house has a dog
+c 219. The owner of the fourth house has a fish
+c 220. The owner of the fourth house has a horse
+c 221. The owner of the fifth house has a bird
+c 222. The owner of the fifth house has a cat
+c 223. The owner of the fifth house has a dog
+c 224. The owner of the fifth house has a fish
+c 225. The owner of the fifth house has a horse
+c 226. The owner of the blue house smokes Blends
+c 227. The owner of the blue house smokes Bluemasters
+c 228. The owner of the blue house smokes Dunhill
+c 229. The owner of the blue house smokes Pall Mall
+c 230. The owner of the blue house smokes Prince
+c 231. The owner of the green house smokes Blends
+c 232. The owner of the green house smokes Bluemasters
+c 233. The owner of the green house smokes Dunhill
+c 234. The owner of the green house smokes Pall Mall
+c 235. The owner of the green house smokes Prince
+c 236. The owner of the red house smokes Blends
+c 237. The owner of the red house smokes Bluemasters
+c 238. The owner of the red house smokes Dunhill
+c 239. The owner of the red house smokes Pall Mall
+c 240. The owner of the red house smokes Prince
+c 241. The owner of the white house smokes Blends
+c 242. The owner of the white house smokes Bluemasters
+c 243. The owner of the white house smokes Dunhill
+c 244. The owner of the white house smokes Pall Mall
+c 245. The owner of the white house smokes Prince
+c 246. The owner of the yellow house smokes Blends
+c 247. The owner of the yellow house smokes Bluemasters
+c 248. The owner of the yellow house smokes Dunhill
+c 249. The owner of the yellow house smokes Pall Mall
+c 250. The owner of the yellow house smokes Prince
+c 251. The owner of the blue house drinks beer
+c 252. The owner of the blue house drinks coffee
+c 253. The owner of the blue house drinks milk
+c 254. The owner of the blue house drinks tea
+c 255. The owner of the blue house drinks water
+c 256. The owner of the green house drinks beer
+c 257. The owner of the green house drinks coffee
+c 258. The owner of the green house drinks milk
+c 259. The owner of the green house drinks tea
+c 260. The owner of the green house drinks water
+c 261. The owner of the red house drinks beer
+c 262. The owner of the red house drinks coffee
+c 263. The owner of the red house drinks milk
+c 264. The owner of the red house drinks tea
+c 265. The owner of the red house drinks water
+c 266. The owner of the white house drinks beer
+c 267. The owner of the white house drinks coffee
+c 268. The owner of the white house drinks milk
+c 269. The owner of the white house drinks tea
+c 270. The owner of the white house drinks water
+c 271. The owner of the yellow house drinks beer
+c 272. The owner of the yellow house drinks coffee
+c 273. The owner of the yellow house drinks milk
+c 274. The owner of the yellow house drinks tea
+c 275. The owner of the yellow house drinks water
+c 276. The owner of the blue house has a bird
+c 277. The owner of the blue house has a cat
+c 278. The owner of the blue house has a dog
+c 279. The owner of the blue house has a fish
+c 280. The owner of the blue house has a horse
+c 281. The owner of the green house has a bird
+c 282. The owner of the green house has a cat
+c 283. The owner of the green house has a dog
+c 284. The owner of the green house has a fish
+c 285. The owner of the green house has a horse
+c 286. The owner of the red house has a bird
+c 287. The owner of the red house has a cat
+c 288. The owner of the red house has a dog
+c 289. The owner of the red house has a fish
+c 290. The owner of the red house has a horse
+c 291. The owner of the white house has a bird
+c 292. The owner of the white house has a cat
+c 293. The owner of the white house has a dog
+c 294. The owner of the white house has a fish
+c 295. The owner of the white house has a horse
+c 296. The owner of the yellow house has a bird
+c 297. The owner of the yellow house has a cat
+c 298. The owner of the yellow house has a dog
+c 299. The owner of the yellow house has a fish
+c 300. The owner of the yellow house has a horse
+c 301. The person who smokes Blends drinks beer
+c 302. The person who smokes Blends drinks coffee
+c 303. The person who smokes Blends drinks milk
+c 304. The person who smokes Blends drinks tea
+c 305. The person who smokes Blends drinks water
+c 306. The person who smokes Bluemasters drinks beer
+c 307. The person who smokes Bluemasters drinks coffee
+c 308. The person who smokes Bluemasters drinks milk
+c 309. The person who smokes Bluemasters drinks tea
+c 310. The person who smokes Bluemasters drinks water
+c 311. The person who smokes Dunhill drinks beer
+c 312. The person who smokes Dunhill drinks coffee
+c 313. The person who smokes Dunhill drinks milk
+c 314. The person who smokes Dunhill drinks tea
+c 315. The person who smokes Dunhill drinks water
+c 316. The person who smokes Pall Mall drinks beer
+c 317. The person who smokes Pall Mall drinks coffee
+c 318. The person who smokes Pall Mall drinks milk
+c 319. The person who smokes Pall Mall drinks tea
+c 320. The person who smokes Pall Mall drinks water
+c 321. The person who smokes Prince drinks beer
+c 322. The person who smokes Prince drinks coffee
+c 323. The person who smokes Prince drinks milk
+c 324. The person who smokes Prince drinks tea
+c 325. The person who smokes Prince drinks water
+c 326. The person who smokes Blends has a bird
+c 327. The person who smokes Blends has a cat
+c 328. The person who smokes Blends has a dog
+c 329. The person who smokes Blends has a fish
+c 330. The person who smokes Blends has a horse
+c 331. The person who smokes Bluemasters has a bird
+c 332. The person who smokes Bluemasters has a cat
+c 333. The person who smokes Bluemasters has a dog
+c 334. The person who smokes Bluemasters has a fish
+c 335. The person who smokes Bluemasters has a horse
+c 336. The person who smokes Dunhill has a bird
+c 337. The person who smokes Dunhill has a cat
+c 338. The person who smokes Dunhill has a dog
+c 339. The person who smokes Dunhill has a fish
+c 340. The person who smokes Dunhill has a horse
+c 341. The person who smokes Pall Mall has a bird
+c 342. The person who smokes Pall Mall has a cat
+c 343. The person who smokes Pall Mall has a dog
+c 344. The person who smokes Pall Mall has a fish
+c 345. The person who smokes Pall Mall has a horse
+c 346. The person who smokes Prince has a bird
+c 347. The person who smokes Prince has a cat
+c 348. The person who smokes Prince has a dog
+c 349. The person who smokes Prince has a fish
+c 350. The person who smokes Prince has a horse
+c 351. The person who drinks beer has a bird
+c 352. The person who drinks beer has a cat
+c 353. The person who drinks beer has a dog
+c 354. The person who drinks beer has a fish
+c 355. The person who drinks beer has a horse
+c 356. The person who drinks coffee has a bird
+c 357. The person who drinks coffee has a cat
+c 358. The person who drinks coffee has a dog
+c 359. The person who drinks coffee has a fish
+c 360. The person who drinks coffee has a horse
+c 361. The person who drinks milk has a bird
+c 362. The person who drinks milk has a cat
+c 363. The person who drinks milk has a dog
+c 364. The person who drinks milk has a fish
+c 365. The person who drinks milk has a horse
+c 366. The person who drinks tea has a bird
+c 367. The person who drinks tea has a cat
+c 368. The person who drinks tea has a dog
+c 369. The person who drinks tea has a fish
+c 370. The person who drinks tea has a horse
+c 371. The person who drinks water has a bird
+c 372. The person who drinks water has a cat
+c 373. The person who drinks water has a dog
+c 374. The person who drinks water has a fish
+c 375. The person who drinks water has a horse
+
+p cnf 375 2699
+c We know that every attribute has a one-to-one correspondence with every other attribute.
+c This implies two things
+c First, each set of five propositions (grouped by [(i + 4) / 5]) has exactly one true proposition.
+c To encode this, we use the conjunction of the following two rules:
+c 1. At least one of the five propositions is true
+1 2 3 4 5 0
+6 7 8 9 10 0
+11 12 13 14 15 0
+16 17 18 19 20 0
+21 22 23 24 25 0
+26 27 28 29 30 0
+31 32 33 34 35 0
+36 37 38 39 40 0
+41 42 43 44 45 0
+46 47 48 49 50 0
+51 52 53 54 55 0
+56 57 58 59 60 0
+61 62 63 64 65 0
+66 67 68 69 70 0
+71 72 73 74 75 0
+76 77 78 79 80 0
+81 82 83 84 85 0
+86 87 88 89 90 0
+91 92 93 94 95 0
+96 97 98 99 100 0
+101 102 103 104 105 0
+106 107 108 109 110 0
+111 112 113 114 115 0
+116 117 118 119 120 0
+121 122 123 124 125 0
+126 127 128 129 130 0
+131 132 133 134 135 0
+136 137 138 139 140 0
+141 142 143 144 145 0
+146 147 148 149 150 0
+151 152 153 154 155 0
+156 157 158 159 160 0
+161 162 163 164 165 0
+166 167 168 169 170 0
+171 172 173 174 175 0
+176 177 178 179 180 0
+181 182 183 184 185 0
+186 187 188 189 190 0
+191 192 193 194 195 0
+196 197 198 199 200 0
+201 202 203 204 205 0
+206 207 208 209 210 0
+211 212 213 214 215 0
+216 217 218 219 220 0
+221 222 223 224 225 0
+226 227 228 229 230 0
+231 232 233 234 235 0
+236 237 238 239 240 0
+241 242 243 244 245 0
+246 247 248 249 250 0
+251 252 253 254 255 0
+256 257 258 259 260 0
+261 262 263 264 265 0
+266 267 268 269 270 0
+271 272 273 274 275 0
+276 277 278 279 280 0
+281 282 283 284 285 0
+286 287 288 289 290 0
+291 292 293 294 295 0
+296 297 298 299 300 0
+301 302 303 304 305 0
+306 307 308 309 310 0
+311 312 313 314 315 0
+316 317 318 319 320 0
+321 322 323 324 325 0
+326 327 328 329 330 0
+331 332 333 334 335 0
+336 337 338 339 340 0
+341 342 343 344 345 0
+346 347 348 349 350 0
+351 352 353 354 355 0
+356 357 358 359 360 0
+361 362 363 364 365 0
+366 367 368 369 370 0
+371 372 373 374 375 0
+c 2. At most one of the five propositions is true
+-1 -2 0
+-1 -3 0
+-1 -4 0
+-1 -5 0
+-2 -3 0
+-2 -4 0
+-2 -5 0
+-3 -4 0
+-3 -5 0
+-4 -5 0
+-6 -7 0
+-6 -8 0
+-6 -9 0
+-6 -10 0
+-7 -8 0
+-7 -9 0
+-7 -10 0
+-8 -9 0
+-8 -10 0
+-9 -10 0
+-11 -12 0
+-11 -13 0
+-11 -14 0
+-11 -15 0
+-12 -13 0
+-12 -14 0
+-12 -15 0
+-13 -14 0
+-13 -15 0
+-14 -15 0
+-16 -17 0
+-16 -18 0
+-16 -19 0
+-16 -20 0
+-17 -18 0
+-17 -19 0
+-17 -20 0
+-18 -19 0
+-18 -20 0
+-19 -20 0
+-21 -22 0
+-21 -23 0
+-21 -24 0
+-21 -25 0
+-22 -23 0
+-22 -24 0
+-22 -25 0
+-23 -24 0
+-23 -25 0
+-24 -25 0
+-26 -27 0
+-26 -28 0
+-26 -29 0
+-26 -30 0
+-27 -28 0
+-27 -29 0
+-27 -30 0
+-28 -29 0
+-28 -30 0
+-29 -30 0
+-31 -32 0
+-31 -33 0
+-31 -34 0
+-31 -35 0
+-32 -33 0
+-32 -34 0
+-32 -35 0
+-33 -34 0
+-33 -35 0
+-34 -35 0
+-36 -37 0
+-36 -38 0
+-36 -39 0
+-36 -40 0
+-37 -38 0
+-37 -39 0
+-37 -40 0
+-38 -39 0
+-38 -40 0
+-39 -40 0
+-41 -42 0
+-41 -43 0
+-41 -44 0
+-41 -45 0
+-42 -43 0
+-42 -44 0
+-42 -45 0
+-43 -44 0
+-43 -45 0
+-44 -45 0
+-46 -47 0
+-46 -48 0
+-46 -49 0
+-46 -50 0
+-47 -48 0
+-47 -49 0
+-47 -50 0
+-48 -49 0
+-48 -50 0
+-49 -50 0
+-51 -52 0
+-51 -54 0
+-51 -55 0
+-52 -53 0
+-52 -54 0
+-52 -55 0
+-53 -54 0
+-53 -55 0
+-54 -55 0
+-56 -57 0
+-56 -58 0
+-56 -59 0
+-56 -60 0
+-57 -58 0
+-57 -59 0
+-57 -60 0
+-58 -59 0
+-58 -60 0
+-59 -60 0
+-61 -62 0
+-61 -63 0
+-61 -64 0
+-61 -65 0
+-62 -63 0
+-62 -64 0
+-62 -65 0
+-63 -64 0
+-63 -65 0
+-64 -65 0
+-66 -67 0
+-66 -68 0
+-66 -69 0
+-66 -70 0
+-67 -68 0
+-67 -69 0
+-67 -70 0
+-68 -69 0
+-68 -70 0
+-69 -70 0
+-71 -72 0
+-71 -73 0
+-71 -74 0
+-71 -75 0
+-72 -73 0
+-72 -74 0
+-72 -75 0
+-73 -74 0
+-73 -75 0
+-74 -75 0
+-76 -77 0
+-76 -78 0
+-76 -79 0
+-76 -80 0
+-77 -78 0
+-77 -79 0
+-77 -80 0
+-78 -79 0
+-78 -80 0
+-79 -80 0
+-81 -82 0
+-81 -83 0
+-81 -84 0
+-81 -85 0
+-82 -83 0
+-82 -84 0
+-82 -85 0
+-83 -84 0
+-83 -85 0
+-84 -85 0
+-86 -87 0
+-86 -88 0
+-86 -89 0
+-86 -90 0
+-87 -88 0
+-87 -89 0
+-87 -90 0
+-88 -89 0
+-88 -90 0
+-89 -90 0
+-91 -92 0
+-91 -93 0
+-91 -94 0
+-91 -95 0
+-92 -93 0
+-92 -94 0
+-92 -95 0
+-93 -94 0
+-93 -95 0
+-94 -95 0
+-96 -97 0
+-96 -98 0
+-96 -99 0
+-96 -100 0
+-97 -98 0
+-97 -99 0
+-97 -100 0
+-98 -99 0
+-98 -100 0
+-99 -100 0
+-101 -102 0
+-101 -103 0
+-101 -104 0
+-101 -105 0
+-102 -103 0
+-102 -104 0
+-102 -105 0
+-103 -104 0
+-103 -105 0
+-104 -105 0
+-106 -107 0
+-106 -108 0
+-106 -109 0
+-106 -110 0
+-107 -108 0
+-107 -109 0
+-107 -110 0
+-108 -109 0
+-108 -110 0
+-109 -110 0
+-111 -112 0
+-111 -113 0
+-111 -114 0
+-111 -115 0
+-112 -113 0
+-112 -114 0
+-112 -115 0
+-113 -114 0
+-113 -115 0
+-114 -115 0
+-116 -117 0
+-116 -118 0
+-116 -119 0
+-116 -120 0
+-117 -118 0
+-117 -119 0
+-117 -120 0
+-118 -119 0
+-118 -120 0
+-119 -120 0
+-121 -122 0
+-121 -123 0
+-121 -124 0
+-121 -125 0
+-122 -123 0
+-122 -124 0
+-122 -125 0
+-123 -124 0
+-123 -125 0
+-124 -125 0
+-126 -127 0
+-126 -128 0
+-126 -129 0
+-126 -130 0
+-127 -128 0
+-127 -129 0
+-127 -130 0
+-128 -129 0
+-128 -130 0
+-129 -130 0
+-131 -132 0
+-131 -133 0
+-131 -134 0
+-131 -135 0
+-132 -133 0
+-132 -134 0
+-132 -135 0
+-133 -134 0
+-133 -135 0
+-134 -135 0
+-136 -137 0
+-136 -138 0
+-136 -139 0
+-136 -140 0
+-137 -138 0
+-137 -139 0
+-137 -140 0
+-138 -139 0
+-138 -140 0
+-139 -140 0
+-141 -142 0
+-141 -143 0
+-141 -144 0
+-141 -145 0
+-142 -143 0
+-142 -144 0
+-142 -145 0
+-143 -144 0
+-143 -145 0
+-144 -145 0
+-146 -147 0
+-146 -148 0
+-146 -149 0
+-146 -150 0
+-147 -148 0
+-147 -149 0
+-147 -150 0
+-148 -149 0
+-148 -150 0
+-149 -150 0
+-151 -152 0
+-151 -153 0
+-151 -154 0
+-151 -155 0
+-152 -153 0
+-152 -154 0
+-152 -155 0
+-153 -154 0
+-153 -155 0
+-154 -155 0
+-156 -157 0
+-156 -158 0
+-156 -159 0
+-156 -160 0
+-157 -158 0
+-157 -159 0
+-157 -160 0
+-158 -159 0
+-158 -160 0
+-159 -160 0
+-161 -162 0
+-161 -163 0
+-161 -164 0
+-161 -165 0
+-162 -163 0
+-162 -164 0
+-162 -165 0
+-163 -164 0
+-163 -165 0
+-164 -165 0
+-166 -167 0
+-166 -168 0
+-166 -169 0
+-166 -170 0
+-167 -168 0
+-167 -169 0
+-167 -170 0
+-168 -169 0
+-168 -170 0
+-169 -170 0
+-171 -172 0
+-171 -173 0
+-171 -174 0
+-171 -175 0
+-172 -173 0
+-172 -174 0
+-172 -175 0
+-173 -174 0
+-173 -175 0
+-174 -175 0
+-176 -177 0
+-176 -178 0
+-176 -179 0
+-176 -180 0
+-177 -178 0
+-177 -179 0
+-177 -180 0
+-178 -179 0
+-178 -180 0
+-179 -180 0
+-181 -182 0
+-181 -183 0
+-181 -184 0
+-181 -185 0
+-182 -183 0
+-182 -184 0
+-182 -185 0
+-183 -184 0
+-183 -185 0
+-184 -185 0
+-186 -187 0
+-186 -188 0
+-186 -189 0
+-186 -190 0
+-187 -188 0
+-187 -189 0
+-187 -190 0
+-188 -189 0
+-188 -190 0
+-189 -190 0
+-191 -192 0
+-191 -193 0
+-191 -194 0
+-191 -195 0
+-192 -193 0
+-192 -194 0
+-192 -195 0
+-193 -194 0
+-193 -195 0
+-194 -195 0
+-196 -197 0
+-196 -198 0
+-196 -199 0
+-196 -200 0
+-197 -198 0
+-197 -199 0
+-197 -200 0
+-198 -199 0
+-198 -200 0
+-199 -200 0
+-201 -202 0
+-201 -203 0
+-201 -204 0
+-201 -205 0
+-202 -203 0
+-202 -204 0
+-202 -205 0
+-203 -204 0
+-203 -205 0
+-204 -205 0
+-206 -207 0
+-206 -208 0
+-206 -209 0
+-206 -210 0
+-207 -208 0
+-207 -209 0
+-207 -210 0
+-208 -209 0
+-208 -210 0
+-209 -210 0
+-211 -212 0
+-211 -213 0
+-211 -214 0
+-211 -215 0
+-212 -213 0
+-212 -214 0
+-212 -215 0
+-213 -214 0
+-213 -215 0
+-214 -215 0
+-216 -217 0
+-216 -218 0
+-216 -219 0
+-216 -220 0
+-217 -218 0
+-217 -219 0
+-217 -220 0
+-218 -219 0
+-218 -220 0
+-219 -220 0
+-221 -222 0
+-221 -223 0
+-221 -224 0
+-221 -225 0
+-222 -223 0
+-222 -224 0
+-222 -225 0
+-223 -224 0
+-223 -225 0
+-224 -225 0
+-226 -227 0
+-226 -228 0
+-226 -229 0
+-226 -230 0
+-227 -228 0
+-227 -229 0
+-227 -230 0
+-228 -229 0
+-228 -230 0
+-229 -230 0
+-231 -232 0
+-231 -233 0
+-231 -234 0
+-231 -235 0
+-232 -233 0
+-232 -234 0
+-232 -235 0
+-233 -234 0
+-233 -235 0
+-234 -235 0
+-236 -237 0
+-236 -238 0
+-236 -239 0
+-236 -240 0
+-237 -238 0
+-237 -239 0
+-237 -240 0
+-238 -239 0
+-238 -240 0
+-239 -240 0
+-241 -242 0
+-241 -243 0
+-241 -244 0
+-241 -245 0
+-242 -243 0
+-242 -244 0
+-242 -245 0
+-243 -244 0
+-243 -245 0
+-244 -245 0
+-246 -247 0
+-246 -248 0
+-246 -249 0
+-246 -250 0
+-247 -248 0
+-247 -249 0
+-247 -250 0
+-248 -249 0
+-248 -250 0
+-249 -250 0
+-251 -252 0
+-251 -253 0
+-251 -254 0
+-251 -255 0
+-252 -253 0
+-252 -254 0
+-252 -255 0
+-253 -254 0
+-253 -255 0
+-254 -255 0
+-256 -257 0
+-256 -258 0
+-256 -259 0
+-256 -260 0
+-257 -258 0
+-257 -259 0
+-257 -260 0
+-258 -259 0
+-258 -260 0
+-259 -260 0
+-261 -262 0
+-261 -263 0
+-261 -264 0
+-261 -265 0
+-262 -263 0
+-262 -264 0
+-262 -265 0
+-263 -264 0
+-263 -265 0
+-264 -265 0
+-266 -267 0
+-266 -268 0
+-266 -269 0
+-266 -270 0
+-267 -268 0
+-267 -269 0
+-267 -270 0
+-268 -269 0
+-268 -270 0
+-269 -270 0
+-271 -272 0
+-271 -273 0
+-271 -274 0
+-271 -275 0
+-272 -273 0
+-272 -274 0
+-272 -275 0
+-273 -274 0
+-273 -275 0
+-274 -275 0
+-276 -277 0
+-276 -278 0
+-276 -279 0
+-276 -280 0
+-277 -278 0
+-277 -279 0
+-277 -280 0
+-278 -279 0
+-278 -280 0
+-279 -280 0
+-281 -282 0
+-281 -283 0
+-281 -284 0
+-281 -285 0
+-282 -283 0
+-282 -284 0
+-282 -285 0
+-283 -284 0
+-283 -285 0
+-284 -285 0
+-286 -287 0
+-286 -288 0
+-286 -289 0
+-286 -290 0
+-287 -288 0
+-287 -289 0
+-287 -290 0
+-288 -289 0
+-288 -290 0
+-289 -290 0
+-291 -292 0
+-291 -293 0
+-291 -294 0
+-291 -295 0
+-292 -293 0
+-292 -294 0
+-292 -295 0
+-293 -294 0
+-293 -295 0
+-294 -295 0
+-296 -297 0
+-296 -298 0
+-296 -299 0
+-296 -300 0
+-297 -298 0
+-297 -299 0
+-297 -300 0
+-298 -299 0
+-298 -300 0
+-299 -300 0
+-301 -302 0
+-301 -303 0
+-301 -304 0
+-301 -305 0
+-302 -303 0
+-302 -304 0
+-302 -305 0
+-303 -304 0
+-303 -305 0
+-304 -305 0
+-306 -307 0
+-306 -308 0
+-306 -309 0
+-306 -310 0
+-307 -308 0
+-307 -309 0
+-307 -310 0
+-308 -309 0
+-308 -310 0
+-309 -310 0
+-311 -312 0
+-311 -313 0
+-311 -314 0
+-311 -315 0
+-312 -313 0
+-312 -314 0
+-312 -315 0
+-313 -314 0
+-313 -315 0
+-314 -315 0
+-316 -317 0
+-316 -318 0
+-316 -319 0
+-316 -320 0
+-317 -318 0
+-317 -319 0
+-317 -320 0
+-318 -319 0
+-318 -320 0
+-319 -320 0
+-321 -322 0
+-321 -323 0
+-321 -324 0
+-321 -325 0
+-322 -323 0
+-322 -324 0
+-322 -325 0
+-323 -324 0
+-323 -325 0
+-324 -325 0
+-326 -327 0
+-326 -328 0
+-326 -329 0
+-326 -330 0
+-327 -328 0
+-327 -329 0
+-327 -330 0
+-328 -329 0
+-328 -330 0
+-329 -330 0
+-331 -332 0
+-331 -333 0
+-331 -334 0
+-331 -335 0
+-332 -333 0
+-332 -334 0
+-332 -335 0
+-333 -334 0
+-333 -335 0
+-334 -335 0
+-336 -337 0
+-336 -338 0
+-336 -339 0
+-336 -340 0
+-337 -338 0
+-337 -339 0
+-337 -340 0
+-338 -339 0
+-338 -340 0
+-339 -340 0
+-341 -342 0
+-341 -343 0
+-341 -344 0
+-341 -345 0
+-342 -343 0
+-342 -344 0
+-342 -345 0
+-343 -344 0
+-343 -345 0
+-344 -345 0
+-346 -347 0
+-346 -348 0
+-346 -349 0
+-346 -350 0
+-347 -348 0
+-347 -349 0
+-347 -350 0
+-348 -349 0
+-348 -350 0
+-349 -350 0
+-351 -352 0
+-351 -353 0
+-351 -354 0
+-351 -355 0
+-352 -353 0
+-352 -354 0
+-352 -355 0
+-353 -354 0
+-353 -355 0
+-354 -355 0
+-356 -357 0
+-356 -358 0
+-356 -359 0
+-356 -360 0
+-357 -358 0
+-357 -359 0
+-357 -360 0
+-358 -359 0
+-358 -360 0
+-359 -360 0
+-361 -362 0
+-361 -363 0
+-361 -364 0
+-361 -365 0
+-362 -363 0
+-362 -364 0
+-362 -365 0
+-363 -364 0
+-363 -365 0
+-364 -365 0
+-366 -367 0
+-366 -368 0
+-366 -369 0
+-366 -370 0
+-367 -368 0
+-367 -369 0
+-367 -370 0
+-368 -369 0
+-368 -370 0
+-369 -370 0
+-371 -372 0
+-371 -373 0
+-371 -374 0
+-371 -375 0
+-372 -373 0
+-372 -374 0
+-372 -375 0
+-373 -374 0
+-373 -375 0
+-374 -375 0
+c Second, similarly, each set of five propositions (grouped by [(i + 4) % 5]) has exactly one true proposition.
+c To encode this, we use the conjunction of the following two rules:
+c 1. At least one of the five propositions is true
+1 6 11 16 21 0
+2 7 12 17 22 0
+3 8 13 18 23 0
+4 9 14 19 24 0
+5 10 15 20 25 0
+26 31 36 41 46 0
+27 32 37 42 47 0
+28 33 38 43 48 0
+29 34 39 44 49 0
+30 35 40 45 50 0
+51 56 61 66 71 0
+52 57 62 67 72 0
+53 58 63 68 73 0
+54 59 64 69 74 0
+55 60 65 70 75 0
+76 81 86 91 96 0
+77 82 87 92 97 0
+78 83 88 93 98 0
+79 84 89 94 99 0
+80 85 90 95 100 0
+101 106 111 116 121 0
+102 107 112 117 122 0
+103 108 113 118 123 0
+104 109 114 119 124 0
+105 110 115 120 125 0
+126 131 136 141 146 0
+127 132 137 142 147 0
+128 133 138 143 148 0
+129 134 139 144 149 0
+130 135 140 145 150 0
+151 156 161 166 171 0
+152 157 162 167 172 0
+153 158 163 168 173 0
+154 159 164 169 174 0
+155 160 165 170 175 0
+176 181 186 191 196 0
+177 182 187 192 197 0
+178 183 188 193 198 0
+179 184 189 194 199 0
+180 185 190 195 200 0
+201 206 211 216 221 0
+202 207 212 217 222 0
+203 208 213 218 223 0
+204 209 214 219 224 0
+205 210 215 220 225 0
+226 231 236 241 246 0
+227 232 237 242 247 0
+228 233 238 243 248 0
+229 234 239 244 249 0
+230 235 240 245 250 0
+251 256 261 266 271 0
+252 257 262 267 272 0
+253 258 263 268 273 0
+254 259 264 269 274 0
+255 260 265 270 275 0
+276 281 286 291 296 0
+277 282 287 292 297 0
+278 283 288 293 298 0
+279 284 289 294 299 0
+280 285 290 295 300 0
+301 306 311 316 321 0
+302 307 312 317 322 0
+303 308 313 318 323 0
+304 309 314 319 324 0
+305 310 315 320 325 0
+326 331 336 341 346 0
+327 332 337 342 347 0
+328 333 338 343 348 0
+329 334 339 344 349 0
+330 335 340 345 350 0
+351 356 361 366 371 0
+352 357 362 367 372 0
+353 358 363 368 373 0
+354 359 364 369 374 0
+355 360 365 370 375 0
+c 2. At most one of the five propositions is true
+-1 -6 0
+-1 -11 0
+-1 -16 0
+-1 -21 0
+-6 -11 0
+-6 -16 0
+-6 -21 0
+-11 -16 0
+-11 -21 0
+-16 -21 0
+-2 -7 0
+-2 -12 0
+-2 -17 0
+-2 -22 0
+-7 -12 0
+-7 -17 0
+-7 -22 0
+-12 -17 0
+-12 -22 0
+-17 -22 0
+-3 -8 0
+-3 -13 0
+-3 -18 0
+-3 -23 0
+-8 -13 0
+-8 -18 0
+-8 -23 0
+-13 -18 0
+-13 -23 0
+-18 -23 0
+-4 -9 0
+-4 -14 0
+-4 -19 0
+-4 -24 0
+-9 -14 0
+-9 -19 0
+-9 -24 0
+-14 -19 0
+-14 -24 0
+-19 -24 0
+-5 -10 0
+-5 -15 0
+-5 -20 0
+-5 -25 0
+-10 -15 0
+-10 -20 0
+-10 -25 0
+-15 -20 0
+-15 -25 0
+-20 -25 0
+-26 -31 0
+-26 -36 0
+-26 -41 0
+-26 -46 0
+-31 -36 0
+-31 -41 0
+-31 -46 0
+-36 -41 0
+-36 -46 0
+-41 -46 0
+-27 -32 0
+-27 -37 0
+-27 -42 0
+-27 -47 0
+-32 -37 0
+-32 -42 0
+-32 -47 0
+-37 -42 0
+-37 -47 0
+-42 -47 0
+-28 -33 0
+-28 -38 0
+-28 -43 0
+-28 -48 0
+-33 -38 0
+-33 -43 0
+-33 -48 0
+-38 -43 0
+-38 -48 0
+-43 -48 0
+-29 -34 0
+-29 -39 0
+-29 -44 0
+-29 -49 0
+-34 -39 0
+-34 -44 0
+-34 -49 0
+-39 -44 0
+-39 -49 0
+-44 -49 0
+-30 -35 0
+-30 -40 0
+-30 -45 0
+-30 -50 0
+-35 -40 0
+-35 -45 0
+-35 -50 0
+-40 -45 0
+-40 -50 0
+-45 -50 0
+-51 -56 0
+-51 -61 0
+-51 -66 0
+-51 -71 0
+-56 -61 0
+-56 -66 0
+-56 -71 0
+-61 -66 0
+-61 -71 0
+-66 -71 0
+-52 -57 0
+-52 -62 0
+-52 -67 0
+-52 -72 0
+-57 -62 0
+-57 -67 0
+-57 -72 0
+-62 -67 0
+-62 -72 0
+-67 -72 0
+-53 -58 0
+-53 -63 0
+-53 -68 0
+-53 -73 0
+-58 -63 0
+-58 -68 0
+-58 -73 0
+-63 -68 0
+-63 -73 0
+-68 -73 0
+-54 -59 0
+-54 -64 0
+-54 -69 0
+-54 -74 0
+-59 -64 0
+-59 -69 0
+-59 -74 0
+-64 -69 0
+-64 -74 0
+-69 -74 0
+-55 -60 0
+-55 -65 0
+-55 -70 0
+-55 -75 0
+-60 -65 0
+-60 -70 0
+-60 -75 0
+-65 -70 0
+-65 -75 0
+-70 -75 0
+-76 -81 0
+-76 -86 0
+-76 -91 0
+-76 -96 0
+-81 -86 0
+-81 -91 0
+-81 -96 0
+-86 -91 0
+-86 -96 0
+-91 -96 0
+-77 -82 0
+-77 -87 0
+-77 -92 0
+-77 -97 0
+-82 -87 0
+-82 -92 0
+-82 -97 0
+-87 -92 0
+-87 -97 0
+-92 -97 0
+-78 -83 0
+-78 -88 0
+-78 -93 0
+-78 -98 0
+-83 -88 0
+-83 -93 0
+-83 -98 0
+-88 -93 0
+-88 -98 0
+-93 -98 0
+-79 -84 0
+-79 -89 0
+-79 -94 0
+-79 -99 0
+-84 -89 0
+-84 -94 0
+-84 -99 0
+-89 -94 0
+-89 -99 0
+-94 -99 0
+-80 -85 0
+-80 -90 0
+-80 -95 0
+-80 -100 0
+-85 -90 0
+-85 -95 0
+-85 -100 0
+-90 -95 0
+-90 -100 0
+-95 -100 0
+-101 -106 0
+-101 -111 0
+-101 -116 0
+-101 -121 0
+-106 -111 0
+-106 -116 0
+-106 -121 0
+-111 -116 0
+-111 -121 0
+-116 -121 0
+-102 -107 0
+-102 -112 0
+-102 -117 0
+-102 -122 0
+-107 -112 0
+-107 -117 0
+-107 -122 0
+-112 -117 0
+-112 -122 0
+-117 -122 0
+-103 -108 0
+-103 -113 0
+-103 -118 0
+-103 -123 0
+-108 -113 0
+-108 -118 0
+-108 -123 0
+-113 -118 0
+-113 -123 0
+-118 -123 0
+-104 -109 0
+-104 -114 0
+-104 -119 0
+-104 -124 0
+-109 -114 0
+-109 -119 0
+-109 -124 0
+-114 -119 0
+-114 -124 0
+-119 -124 0
+-105 -110 0
+-105 -115 0
+-105 -120 0
+-105 -125 0
+-110 -115 0
+-110 -120 0
+-110 -125 0
+-115 -120 0
+-115 -125 0
+-120 -125 0
+-126 -131 0
+-126 -136 0
+-126 -141 0
+-126 -146 0
+-131 -136 0
+-131 -141 0
+-131 -146 0
+-136 -141 0
+-136 -146 0
+-141 -146 0
+-127 -132 0
+-127 -137 0
+-127 -142 0
+-127 -147 0
+-132 -137 0
+-132 -142 0
+-132 -147 0
+-137 -142 0
+-137 -147 0
+-142 -147 0
+-128 -133 0
+-128 -138 0
+-128 -143 0
+-128 -148 0
+-133 -138 0
+-133 -143 0
+-133 -148 0
+-138 -143 0
+-138 -148 0
+-143 -148 0
+-129 -134 0
+-129 -139 0
+-129 -144 0
+-129 -149 0
+-134 -139 0
+-134 -144 0
+-134 -149 0
+-139 -144 0
+-139 -149 0
+-144 -149 0
+-130 -135 0
+-130 -140 0
+-130 -145 0
+-130 -150 0
+-135 -140 0
+-135 -145 0
+-135 -150 0
+-140 -145 0
+-140 -150 0
+-145 -150 0
+-151 -156 0
+-151 -161 0
+-151 -166 0
+-151 -171 0
+-156 -161 0
+-156 -166 0
+-156 -171 0
+-161 -166 0
+-161 -171 0
+-166 -171 0
+-152 -157 0
+-152 -162 0
+-152 -167 0
+-152 -172 0
+-157 -162 0
+-157 -167 0
+-157 -172 0
+-162 -167 0
+-162 -172 0
+-167 -172 0
+-153 -158 0
+-153 -163 0
+-153 -168 0
+-153 -173 0
+-158 -163 0
+-158 -168 0
+-158 -173 0
+-163 -168 0
+-163 -173 0
+-168 -173 0
+-154 -159 0
+-154 -164 0
+-154 -169 0
+-154 -174 0
+-159 -164 0
+-159 -169 0
+-159 -174 0
+-164 -169 0
+-164 -174 0
+-169 -174 0
+-155 -160 0
+-155 -165 0
+-155 -170 0
+-155 -175 0
+-160 -165 0
+-160 -170 0
+-160 -175 0
+-165 -170 0
+-165 -175 0
+-170 -175 0
+-176 -181 0
+-176 -186 0
+-176 -191 0
+-176 -196 0
+-181 -186 0
+-181 -191 0
+-181 -196 0
+-186 -191 0
+-186 -196 0
+-191 -196 0
+-177 -182 0
+-177 -187 0
+-177 -192 0
+-177 -197 0
+-182 -187 0
+-182 -192 0
+-182 -197 0
+-187 -192 0
+-187 -197 0
+-192 -197 0
+-178 -183 0
+-178 -188 0
+-178 -193 0
+-178 -198 0
+-183 -188 0
+-183 -193 0
+-183 -198 0
+-188 -193 0
+-188 -198 0
+-193 -198 0
+-179 -184 0
+-179 -189 0
+-179 -194 0
+-179 -199 0
+-184 -189 0
+-184 -194 0
+-184 -199 0
+-189 -194 0
+-189 -199 0
+-194 -199 0
+-180 -185 0
+-180 -190 0
+-180 -195 0
+-180 -200 0
+-185 -190 0
+-185 -195 0
+-185 -200 0
+-190 -195 0
+-190 -200 0
+-195 -200 0
+-201 -206 0
+-201 -211 0
+-201 -216 0
+-201 -221 0
+-206 -211 0
+-206 -216 0
+-206 -221 0
+-211 -216 0
+-211 -221 0
+-216 -221 0
+-202 -207 0
+-202 -212 0
+-202 -217 0
+-202 -222 0
+-207 -212 0
+-207 -217 0
+-207 -222 0
+-212 -217 0
+-212 -222 0
+-217 -222 0
+-203 -208 0
+-203 -213 0
+-203 -218 0
+-203 -223 0
+-208 -213 0
+-208 -218 0
+-208 -223 0
+-213 -218 0
+-213 -223 0
+-218 -223 0
+-204 -209 0
+-204 -214 0
+-204 -219 0
+-204 -224 0
+-209 -214 0
+-209 -219 0
+-209 -224 0
+-214 -219 0
+-214 -224 0
+-219 -224 0
+-205 -210 0
+-205 -215 0
+-205 -220 0
+-205 -225 0
+-210 -215 0
+-210 -220 0
+-210 -225 0
+-215 -220 0
+-215 -225 0
+-220 -225 0
+-226 -231 0
+-226 -236 0
+-226 -241 0
+-226 -246 0
+-231 -236 0
+-231 -241 0
+-231 -246 0
+-236 -241 0
+-236 -246 0
+-241 -246 0
+-227 -232 0
+-227 -237 0
+-227 -242 0
+-227 -247 0
+-232 -237 0
+-232 -242 0
+-232 -247 0
+-237 -242 0
+-237 -247 0
+-242 -247 0
+-228 -233 0
+-228 -238 0
+-228 -243 0
+-228 -248 0
+-233 -238 0
+-233 -243 0
+-233 -248 0
+-238 -243 0
+-238 -248 0
+-243 -248 0
+-229 -234 0
+-229 -239 0
+-229 -244 0
+-229 -249 0
+-234 -239 0
+-234 -244 0
+-234 -249 0
+-239 -244 0
+-239 -249 0
+-244 -249 0
+-230 -235 0
+-230 -240 0
+-230 -245 0
+-230 -250 0
+-235 -240 0
+-235 -245 0
+-235 -250 0
+-240 -245 0
+-240 -250 0
+-245 -250 0
+-251 -256 0
+-251 -261 0
+-251 -266 0
+-251 -271 0
+-256 -261 0
+-256 -266 0
+-256 -271 0
+-261 -266 0
+-261 -271 0
+-266 -271 0
+-252 -257 0
+-252 -262 0
+-252 -267 0
+-252 -272 0
+-257 -262 0
+-257 -267 0
+-257 -272 0
+-262 -267 0
+-262 -272 0
+-267 -272 0
+-253 -258 0
+-253 -263 0
+-253 -268 0
+-253 -273 0
+-258 -263 0
+-258 -268 0
+-258 -273 0
+-263 -268 0
+-263 -273 0
+-268 -273 0
+-254 -259 0
+-254 -264 0
+-254 -269 0
+-254 -274 0
+-259 -264 0
+-259 -269 0
+-259 -274 0
+-264 -269 0
+-264 -274 0
+-269 -274 0
+-255 -260 0
+-255 -265 0
+-255 -270 0
+-255 -275 0
+-260 -265 0
+-260 -270 0
+-260 -275 0
+-265 -270 0
+-265 -275 0
+-270 -275 0
+-276 -281 0
+-276 -286 0
+-276 -291 0
+-276 -296 0
+-281 -286 0
+-281 -291 0
+-281 -296 0
+-286 -291 0
+-286 -296 0
+-291 -296 0
+-277 -282 0
+-277 -287 0
+-277 -292 0
+-277 -297 0
+-282 -287 0
+-282 -292 0
+-282 -297 0
+-287 -292 0
+-287 -297 0
+-292 -297 0
+-278 -283 0
+-278 -288 0
+-278 -293 0
+-278 -298 0
+-283 -288 0
+-283 -293 0
+-283 -298 0
+-288 -293 0
+-288 -298 0
+-293 -298 0
+-279 -284 0
+-279 -289 0
+-279 -294 0
+-279 -299 0
+-284 -289 0
+-284 -294 0
+-284 -299 0
+-289 -294 0
+-289 -299 0
+-294 -299 0
+-280 -285 0
+-280 -290 0
+-280 -295 0
+-280 -300 0
+-285 -290 0
+-285 -295 0
+-285 -300 0
+-290 -295 0
+-290 -300 0
+-295 -300 0
+-301 -306 0
+-301 -311 0
+-301 -316 0
+-301 -321 0
+-306 -311 0
+-306 -316 0
+-306 -321 0
+-311 -316 0
+-311 -321 0
+-316 -321 0
+-302 -307 0
+-302 -312 0
+-302 -317 0
+-302 -322 0
+-307 -312 0
+-307 -317 0
+-307 -322 0
+-312 -317 0
+-312 -322 0
+-317 -322 0
+-303 -308 0
+-303 -313 0
+-303 -318 0
+-303 -323 0
+-308 -313 0
+-308 -318 0
+-308 -323 0
+-313 -318 0
+-313 -323 0
+-318 -323 0
+-304 -309 0
+-304 -314 0
+-304 -319 0
+-304 -324 0
+-309 -314 0
+-309 -319 0
+-309 -324 0
+-314 -319 0
+-314 -324 0
+-319 -324 0
+-305 -310 0
+-305 -315 0
+-305 -320 0
+-305 -325 0
+-310 -315 0
+-310 -320 0
+-310 -325 0
+-315 -320 0
+-315 -325 0
+-320 -325 0
+-326 -331 0
+-326 -336 0
+-326 -341 0
+-326 -346 0
+-331 -336 0
+-331 -341 0
+-331 -346 0
+-336 -341 0
+-336 -346 0
+-341 -346 0
+-327 -332 0
+-327 -337 0
+-327 -342 0
+-327 -347 0
+-332 -337 0
+-332 -342 0
+-332 -347 0
+-337 -342 0
+-337 -347 0
+-342 -347 0
+-328 -333 0
+-328 -338 0
+-328 -343 0
+-328 -348 0
+-333 -338 0
+-333 -343 0
+-333 -348 0
+-338 -343 0
+-338 -348 0
+-343 -348 0
+-329 -334 0
+-329 -339 0
+-329 -344 0
+-329 -349 0
+-334 -339 0
+-334 -344 0
+-334 -349 0
+-339 -344 0
+-339 -349 0
+-344 -349 0
+-330 -335 0
+-330 -340 0
+-330 -345 0
+-330 -350 0
+-335 -340 0
+-335 -345 0
+-335 -350 0
+-340 -345 0
+-340 -350 0
+-345 -350 0
+-351 -356 0
+-351 -361 0
+-351 -366 0
+-351 -371 0
+-356 -361 0
+-356 -366 0
+-356 -371 0
+-361 -366 0
+-361 -371 0
+-366 -371 0
+-352 -357 0
+-352 -362 0
+-352 -367 0
+-352 -372 0
+-357 -362 0
+-357 -367 0
+-357 -372 0
+-362 -367 0
+-362 -372 0
+-367 -372 0
+-353 -358 0
+-353 -363 0
+-353 -368 0
+-353 -373 0
+-358 -363 0
+-358 -368 0
+-358 -373 0
+-363 -368 0
+-363 -373 0
+-368 -373 0
+-354 -359 0
+-354 -364 0
+-354 -369 0
+-354 -374 0
+-359 -364 0
+-359 -369 0
+-359 -374 0
+-364 -369 0
+-364 -374 0
+-369 -374 0
+-355 -360 0
+-355 -365 0
+-355 -370 0
+-355 -375 0
+-360 -365 0
+-360 -370 0
+-360 -375 0
+-365 -370 0
+-365 -375 0
+-370 -375 0
+c Then, we apply the transitivity criteria.
+c For attributes A, B, C, if prepositions (Ai, Bj) and (Bj, Ck) are true, then (Ai, Ck) is true.
+c (A & B) -> C can be written as (-A | -B | C)
+c (Nationality, Position), (Nationality, Color) -> (Position, Color)
+-1 -26 126 0
+-1 -27 127 0
+-1 -28 128 0
+-1 -29 129 0
+-1 -30 130 0
+-2 -26 131 0
+-2 -27 132 0
+-2 -28 133 0
+-2 -29 134 0
+-2 -30 135 0
+-3 -26 136 0
+-3 -27 137 0
+-3 -28 138 0
+-3 -29 139 0
+-3 -30 140 0
+-4 -26 141 0
+-4 -27 142 0
+-4 -28 143 0
+-4 -29 144 0
+-4 -30 145 0
+-5 -26 146 0
+-5 -27 147 0
+-5 -28 148 0
+-5 -29 149 0
+-5 -30 150 0
+-6 -31 126 0
+-6 -32 127 0
+-6 -33 128 0
+-6 -34 129 0
+-6 -35 130 0
+-7 -31 131 0
+-7 -32 132 0
+-7 -33 133 0
+-7 -34 134 0
+-7 -35 135 0
+-8 -31 136 0
+-8 -32 137 0
+-8 -33 138 0
+-8 -34 139 0
+-8 -35 140 0
+-9 -31 141 0
+-9 -32 142 0
+-9 -33 143 0
+-9 -34 144 0
+-9 -35 145 0
+-10 -31 146 0
+-10 -32 147 0
+-10 -33 148 0
+-10 -34 149 0
+-10 -35 150 0
+-11 -36 126 0
+-11 -37 127 0
+-11 -38 128 0
+-11 -39 129 0
+-11 -40 130 0
+-12 -36 131 0
+-12 -37 132 0
+-12 -38 133 0
+-12 -39 134 0
+-12 -40 135 0
+-13 -36 136 0
+-13 -37 137 0
+-13 -38 138 0
+-13 -39 139 0
+-13 -40 140 0
+-14 -36 141 0
+-14 -37 142 0
+-14 -38 143 0
+-14 -39 144 0
+-14 -40 145 0
+-15 -36 146 0
+-15 -37 147 0
+-15 -38 148 0
+-15 -39 149 0
+-15 -40 150 0
+-16 -41 126 0
+-16 -42 127 0
+-16 -43 128 0
+-16 -44 129 0
+-16 -45 130 0
+-17 -41 131 0
+-17 -42 132 0
+-17 -43 133 0
+-17 -44 134 0
+-17 -45 135 0
+-18 -41 136 0
+-18 -42 137 0
+-18 -43 138 0
+-18 -44 139 0
+-18 -45 140 0
+-19 -41 141 0
+-19 -42 142 0
+-19 -43 143 0
+-19 -44 144 0
+-19 -45 145 0
+-20 -41 146 0
+-20 -42 147 0
+-20 -43 148 0
+-20 -44 149 0
+-20 -45 150 0
+-21 -46 126 0
+-21 -47 127 0
+-21 -48 128 0
+-21 -49 129 0
+-21 -50 130 0
+-22 -46 131 0
+-22 -47 132 0
+-22 -48 133 0
+-22 -49 134 0
+-22 -50 135 0
+-23 -46 136 0
+-23 -47 137 0
+-23 -48 138 0
+-23 -49 139 0
+-23 -50 140 0
+-24 -46 141 0
+-24 -47 142 0
+-24 -48 143 0
+-24 -49 144 0
+-24 -50 145 0
+-25 -46 146 0
+-25 -47 147 0
+-25 -48 148 0
+-25 -49 149 0
+-25 -50 150 0
+c (Nationality, Position), (Nationality, Cigar) -> (Position, Cigar)
+-1 -51 151 0
+-1 -52 152 0
+-1 -53 153 0
+-1 -54 154 0
+-1 -55 155 0
+-2 -51 156 0
+-2 -52 157 0
+-2 -53 158 0
+-2 -54 159 0
+-2 -55 160 0
+-3 -51 161 0
+-3 -52 162 0
+-3 -53 163 0
+-3 -54 164 0
+-3 -55 165 0
+-4 -51 166 0
+-4 -52 167 0
+-4 -53 168 0
+-4 -54 169 0
+-4 -55 170 0
+-5 -51 171 0
+-5 -52 172 0
+-5 -53 173 0
+-5 -54 174 0
+-5 -55 175 0
+-6 -56 151 0
+-6 -57 152 0
+-6 -58 153 0
+-6 -59 154 0
+-6 -60 155 0
+-7 -56 156 0
+-7 -57 157 0
+-7 -58 158 0
+-7 -59 159 0
+-7 -60 160 0
+-8 -56 161 0
+-8 -57 162 0
+-8 -58 163 0
+-8 -59 164 0
+-8 -60 165 0
+-9 -56 166 0
+-9 -57 167 0
+-9 -58 168 0
+-9 -59 169 0
+-9 -60 170 0
+-10 -56 171 0
+-10 -57 172 0
+-10 -58 173 0
+-10 -59 174 0
+-10 -60 175 0
+-11 -61 151 0
+-11 -62 152 0
+-11 -63 153 0
+-11 -64 154 0
+-11 -65 155 0
+-12 -61 156 0
+-12 -62 157 0
+-12 -63 158 0
+-12 -64 159 0
+-12 -65 160 0
+-13 -61 161 0
+-13 -62 162 0
+-13 -63 163 0
+-13 -64 164 0
+-13 -65 165 0
+-14 -61 166 0
+-14 -62 167 0
+-14 -63 168 0
+-14 -64 169 0
+-14 -65 170 0
+-15 -61 171 0
+-15 -62 172 0
+-15 -63 173 0
+-15 -64 174 0
+-15 -65 175 0
+-16 -66 151 0
+-16 -67 152 0
+-16 -68 153 0
+-16 -69 154 0
+-16 -70 155 0
+-17 -66 156 0
+-17 -67 157 0
+-17 -68 158 0
+-17 -69 159 0
+-17 -70 160 0
+-18 -66 161 0
+-18 -67 162 0
+-18 -68 163 0
+-18 -69 164 0
+-18 -70 165 0
+-19 -66 166 0
+-19 -67 167 0
+-19 -68 168 0
+-19 -69 169 0
+-19 -70 170 0
+-20 -66 171 0
+-20 -67 172 0
+-20 -68 173 0
+-20 -69 174 0
+-20 -70 175 0
+-21 -71 151 0
+-21 -72 152 0
+-21 -73 153 0
+-21 -74 154 0
+-21 -75 155 0
+-22 -71 156 0
+-22 -72 157 0
+-22 -73 158 0
+-22 -74 159 0
+-22 -75 160 0
+-23 -71 161 0
+-23 -72 162 0
+-23 -73 163 0
+-23 -74 164 0
+-23 -75 165 0
+-24 -71 166 0
+-24 -72 167 0
+-24 -73 168 0
+-24 -74 169 0
+-24 -75 170 0
+-25 -71 171 0
+-25 -72 172 0
+-25 -73 173 0
+-25 -74 174 0
+-25 -75 175 0
+c (Nationality, Position), (Nationality, Beverage) -> (Position, Beverage)
+-1 -76 176 0
+-1 -77 177 0
+-1 -78 178 0
+-1 -79 179 0
+-1 -80 180 0
+-2 -76 181 0
+-2 -77 182 0
+-2 -78 183 0
+-2 -79 184 0
+-2 -80 185 0
+-3 -76 186 0
+-3 -77 187 0
+-3 -78 188 0
+-3 -79 189 0
+-3 -80 190 0
+-4 -76 191 0
+-4 -77 192 0
+-4 -78 193 0
+-4 -79 194 0
+-4 -80 195 0
+-5 -76 196 0
+-5 -77 197 0
+-5 -78 198 0
+-5 -79 199 0
+-5 -80 200 0
+-6 -81 176 0
+-6 -82 177 0
+-6 -83 178 0
+-6 -84 179 0
+-6 -85 180 0
+-7 -81 181 0
+-7 -82 182 0
+-7 -83 183 0
+-7 -84 184 0
+-7 -85 185 0
+-8 -81 186 0
+-8 -82 187 0
+-8 -83 188 0
+-8 -84 189 0
+-8 -85 190 0
+-9 -81 191 0
+-9 -82 192 0
+-9 -83 193 0
+-9 -84 194 0
+-9 -85 195 0
+-10 -81 196 0
+-10 -82 197 0
+-10 -83 198 0
+-10 -84 199 0
+-10 -85 200 0
+-11 -86 176 0
+-11 -87 177 0
+-11 -88 178 0
+-11 -89 179 0
+-11 -90 180 0
+-12 -86 181 0
+-12 -87 182 0
+-12 -88 183 0
+-12 -89 184 0
+-12 -90 185 0
+-13 -86 186 0
+-13 -87 187 0
+-13 -88 188 0
+-13 -89 189 0
+-13 -90 190 0
+-14 -86 191 0
+-14 -87 192 0
+-14 -88 193 0
+-14 -89 194 0
+-14 -90 195 0
+-15 -86 196 0
+-15 -87 197 0
+-15 -88 198 0
+-15 -89 199 0
+-15 -90 200 0
+-16 -91 176 0
+-16 -92 177 0
+-16 -93 178 0
+-16 -94 179 0
+-16 -95 180 0
+-17 -91 181 0
+-17 -92 182 0
+-17 -93 183 0
+-17 -94 184 0
+-17 -95 185 0
+-18 -91 186 0
+-18 -92 187 0
+-18 -93 188 0
+-18 -94 189 0
+-18 -95 190 0
+-19 -91 191 0
+-19 -92 192 0
+-19 -93 193 0
+-19 -94 194 0
+-19 -95 195 0
+-20 -91 196 0
+-20 -92 197 0
+-20 -93 198 0
+-20 -94 199 0
+-20 -95 200 0
+-21 -96 176 0
+-21 -97 177 0
+-21 -98 178 0
+-21 -99 179 0
+-21 -100 180 0
+-22 -96 181 0
+-22 -97 182 0
+-22 -98 183 0
+-22 -99 184 0
+-22 -100 185 0
+-23 -96 186 0
+-23 -97 187 0
+-23 -98 188 0
+-23 -99 189 0
+-23 -100 190 0
+-24 -96 191 0
+-24 -97 192 0
+-24 -98 193 0
+-24 -99 194 0
+-24 -100 195 0
+-25 -96 196 0
+-25 -97 197 0
+-25 -98 198 0
+-25 -99 199 0
+-25 -100 200 0
+c (Nationality, Position), (Nationality, Pet) -> (Position, Pet)
+-1 -101 201 0
+-1 -101 201 0
+-1 -102 202 0
+-1 -103 203 0
+-1 -104 204 0
+-1 -105 205 0
+-2 -101 206 0
+-2 -102 207 0
+-2 -103 208 0
+-2 -104 209 0
+-2 -105 210 0
+-3 -101 211 0
+-3 -102 212 0
+-3 -103 213 0
+-3 -104 214 0
+-3 -105 215 0
+-4 -101 216 0
+-4 -102 217 0
+-4 -103 218 0
+-4 -104 219 0
+-4 -105 220 0
+-5 -101 221 0
+-5 -102 222 0
+-5 -103 223 0
+-5 -104 224 0
+-5 -105 225 0
+-6 -106 201 0
+-6 -107 202 0
+-6 -108 203 0
+-6 -109 204 0
+-6 -110 205 0
+-7 -106 206 0
+-7 -107 207 0
+-7 -108 208 0
+-7 -109 209 0
+-7 -110 210 0
+-8 -106 211 0
+-8 -107 212 0
+-8 -108 213 0
+-8 -109 214 0
+-8 -110 215 0
+-9 -106 216 0
+-9 -107 217 0
+-9 -108 218 0
+-9 -109 219 0
+-9 -110 220 0
+-10 -106 221 0
+-10 -107 222 0
+-10 -108 223 0
+-10 -109 224 0
+-10 -110 225 0
+-11 -111 201 0
+-11 -112 202 0
+-11 -113 203 0
+-11 -114 204 0
+-11 -115 205 0
+-12 -111 206 0
+-12 -112 207 0
+-12 -113 208 0
+-12 -114 209 0
+-12 -115 210 0
+-13 -111 211 0
+-13 -112 212 0
+-13 -113 213 0
+-13 -114 214 0
+-13 -115 215 0
+-14 -111 216 0
+-14 -112 217 0
+-14 -113 218 0
+-14 -114 219 0
+-14 -115 220 0
+-15 -111 221 0
+-15 -112 222 0
+-15 -113 223 0
+-15 -114 224 0
+-15 -115 225 0
+-16 -116 201 0
+-16 -117 202 0
+-16 -118 203 0
+-16 -119 204 0
+-16 -120 205 0
+-17 -116 206 0
+-17 -117 207 0
+-17 -118 208 0
+-17 -119 209 0
+-17 -120 210 0
+-18 -116 211 0
+-18 -117 212 0
+-18 -118 213 0
+-18 -119 214 0
+-18 -120 215 0
+-19 -116 216 0
+-19 -117 217 0
+-19 -118 218 0
+-19 -119 219 0
+-19 -120 220 0
+-20 -116 221 0
+-20 -117 222 0
+-20 -118 223 0
+-20 -119 224 0
+-20 -120 225 0
+-21 -121 201 0
+-21 -122 202 0
+-21 -123 203 0
+-21 -124 204 0
+-21 -125 205 0
+-22 -121 206 0
+-22 -122 207 0
+-22 -123 208 0
+-22 -124 209 0
+-22 -125 210 0
+-23 -121 211 0
+-23 -122 212 0
+-23 -123 213 0
+-23 -124 214 0
+-23 -125 215 0
+-24 -121 216 0
+-24 -122 217 0
+-24 -123 218 0
+-24 -124 219 0
+-24 -125 220 0
+-25 -121 221 0
+-25 -122 222 0
+-25 -123 223 0
+-25 -124 224 0
+-25 -125 225 0
+c (Position, Color), (Position, Cigar) -> (Color, Cigar)
+-126 -151 226 0
+-126 -152 227 0
+-126 -153 228 0
+-126 -154 229 0
+-126 -155 230 0
+-127 -151 231 0
+-127 -152 232 0
+-127 -153 233 0
+-127 -154 234 0
+-127 -155 235 0
+-128 -151 236 0
+-128 -152 237 0
+-128 -153 238 0
+-128 -154 239 0
+-128 -155 240 0
+-129 -151 241 0
+-129 -152 242 0
+-129 -153 243 0
+-129 -154 244 0
+-129 -155 245 0
+-130 -151 246 0
+-130 -152 247 0
+-130 -153 248 0
+-130 -154 249 0
+-130 -155 250 0
+-131 -156 226 0
+-131 -157 227 0
+-131 -158 228 0
+-131 -159 229 0
+-131 -160 230 0
+-132 -156 231 0
+-132 -157 232 0
+-132 -158 233 0
+-132 -159 234 0
+-132 -160 235 0
+-133 -156 236 0
+-133 -157 237 0
+-133 -158 238 0
+-133 -159 239 0
+-133 -160 240 0
+-134 -156 241 0
+-134 -157 242 0
+-134 -158 243 0
+-134 -159 244 0
+-134 -160 245 0
+-135 -156 246 0
+-135 -157 247 0
+-135 -158 248 0
+-135 -159 249 0
+-135 -160 250 0
+-136 -161 226 0
+-136 -162 227 0
+-136 -163 228 0
+-136 -164 229 0
+-136 -165 230 0
+-137 -161 231 0
+-137 -162 232 0
+-137 -163 233 0
+-137 -164 234 0
+-137 -165 235 0
+-138 -161 236 0
+-138 -162 237 0
+-138 -163 238 0
+-138 -164 239 0
+-138 -165 240 0
+-139 -161 241 0
+-139 -162 242 0
+-139 -163 243 0
+-139 -164 244 0
+-139 -165 245 0
+-140 -161 246 0
+-140 -162 247 0
+-140 -163 248 0
+-140 -164 249 0
+-140 -165 250 0
+-141 -166 226 0
+-141 -167 227 0
+-141 -168 228 0
+-141 -169 229 0
+-141 -170 230 0
+-142 -166 231 0
+-142 -167 232 0
+-142 -168 233 0
+-142 -169 234 0
+-142 -170 235 0
+-143 -166 236 0
+-143 -167 237 0
+-143 -168 238 0
+-143 -169 239 0
+-143 -170 240 0
+-144 -166 241 0
+-144 -167 242 0
+-144 -168 243 0
+-144 -169 244 0
+-144 -170 245 0
+-145 -166 246 0
+-145 -167 247 0
+-145 -168 248 0
+-145 -169 249 0
+-145 -170 250 0
+-146 -171 226 0
+-146 -172 227 0
+-146 -173 228 0
+-146 -174 229 0
+-146 -175 230 0
+-147 -171 231 0
+-147 -172 232 0
+-147 -173 233 0
+-147 -174 234 0
+-147 -175 235 0
+-148 -171 236 0
+-148 -172 237 0
+-148 -173 238 0
+-148 -174 239 0
+-148 -175 240 0
+-149 -171 241 0
+-149 -172 242 0
+-149 -173 243 0
+-149 -174 244 0
+-149 -175 245 0
+-150 -171 246 0
+-150 -172 247 0
+-150 -173 248 0
+-150 -174 249 0
+-150 -175 250 0
+c (Position, Color), (Position, Beverage) -> (Color, Beverage)
+-126 -176 251 0
+-126 -177 252 0
+-126 -178 253 0
+-126 -179 254 0
+-126 -180 255 0
+-127 -176 256 0
+-127 -177 257 0
+-127 -178 258 0
+-127 -179 259 0
+-127 -180 260 0
+-128 -176 261 0
+-128 -177 262 0
+-128 -178 263 0
+-128 -179 264 0
+-128 -180 265 0
+-129 -176 266 0
+-129 -177 267 0
+-129 -178 268 0
+-129 -179 269 0
+-129 -180 270 0
+-130 -176 271 0
+-130 -177 272 0
+-130 -178 273 0
+-130 -179 274 0
+-130 -180 275 0
+-131 -181 251 0
+-131 -182 252 0
+-131 -183 253 0
+-131 -184 254 0
+-131 -185 255 0
+-132 -181 256 0
+-132 -182 257 0
+-132 -183 258 0
+-132 -184 259 0
+-132 -185 260 0
+-133 -181 261 0
+-133 -182 262 0
+-133 -183 263 0
+-133 -184 264 0
+-133 -185 265 0
+-134 -181 266 0
+-134 -182 267 0
+-134 -183 268 0
+-134 -184 269 0
+-134 -185 270 0
+-135 -181 271 0
+-135 -182 272 0
+-135 -183 273 0
+-135 -184 274 0
+-135 -185 275 0
+-136 -186 251 0
+-136 -187 252 0
+-136 -188 253 0
+-136 -189 254 0
+-136 -190 255 0
+-137 -186 256 0
+-137 -187 257 0
+-137 -188 258 0
+-137 -189 259 0
+-137 -190 260 0
+-138 -186 261 0
+-138 -187 262 0
+-138 -188 263 0
+-138 -189 264 0
+-138 -190 265 0
+-139 -186 266 0
+-139 -187 267 0
+-139 -188 268 0
+-139 -189 269 0
+-139 -190 270 0
+-140 -186 271 0
+-140 -187 272 0
+-140 -188 273 0
+-140 -189 274 0
+-140 -190 275 0
+-141 -191 251 0
+-141 -192 252 0
+-141 -193 253 0
+-141 -194 254 0
+-141 -195 255 0
+-142 -191 256 0
+-142 -192 257 0
+-142 -193 258 0
+-142 -194 259 0
+-142 -195 260 0
+-143 -191 261 0
+-143 -192 262 0
+-143 -193 263 0
+-143 -194 264 0
+-143 -195 265 0
+-144 -191 266 0
+-144 -192 267 0
+-144 -193 268 0
+-144 -194 269 0
+-144 -195 270 0
+-145 -191 271 0
+-145 -192 272 0
+-145 -193 273 0
+-145 -194 274 0
+-145 -195 275 0
+-146 -196 251 0
+-146 -197 252 0
+-146 -198 253 0
+-146 -199 254 0
+-146 -200 255 0
+-147 -196 256 0
+-147 -197 257 0
+-147 -198 258 0
+-147 -199 259 0
+-147 -200 260 0
+-148 -196 261 0
+-148 -197 262 0
+-148 -198 263 0
+-148 -199 264 0
+-148 -200 265 0
+-149 -196 266 0
+-149 -197 267 0
+-149 -198 268 0
+-149 -199 269 0
+-149 -200 270 0
+-150 -196 271 0
+-150 -197 272 0
+-150 -198 273 0
+-150 -199 274 0
+-150 -200 275 0
+c (Position, Color), (Position, Pet) -> (Color, Pet)
+-126 -201 276 0
+-126 -202 277 0
+-126 -203 278 0
+-126 -204 279 0
+-126 -205 280 0
+-127 -201 281 0
+-127 -202 282 0
+-127 -203 283 0
+-127 -204 284 0
+-127 -205 285 0
+-128 -201 286 0
+-128 -202 287 0
+-128 -203 288 0
+-128 -204 289 0
+-128 -205 290 0
+-129 -201 291 0
+-129 -202 292 0
+-129 -203 293 0
+-129 -204 294 0
+-129 -205 295 0
+-130 -201 296 0
+-130 -202 297 0
+-130 -203 298 0
+-130 -204 299 0
+-130 -205 300 0
+-131 -206 276 0
+-131 -207 277 0
+-131 -208 278 0
+-131 -209 279 0
+-131 -210 280 0
+-132 -206 281 0
+-132 -207 282 0
+-132 -208 283 0
+-132 -209 284 0
+-132 -210 285 0
+-133 -206 286 0
+-133 -207 287 0
+-133 -208 288 0
+-133 -209 289 0
+-133 -210 290 0
+-134 -206 291 0
+-134 -207 292 0
+-134 -208 293 0
+-134 -209 294 0
+-134 -210 295 0
+-135 -206 296 0
+-135 -207 297 0
+-135 -208 298 0
+-135 -209 299 0
+-135 -210 300 0
+-136 -211 276 0
+-136 -212 277 0
+-136 -213 278 0
+-136 -214 279 0
+-136 -215 280 0
+-137 -211 281 0
+-137 -212 282 0
+-137 -213 283 0
+-137 -214 284 0
+-137 -215 285 0
+-138 -211 286 0
+-138 -212 287 0
+-138 -213 288 0
+-138 -214 289 0
+-138 -215 290 0
+-139 -211 291 0
+-139 -212 292 0
+-139 -213 293 0
+-139 -214 294 0
+-139 -215 295 0
+-140 -211 296 0
+-140 -212 297 0
+-140 -213 298 0
+-140 -214 299 0
+-140 -215 300 0
+-141 -216 276 0
+-141 -217 277 0
+-141 -218 278 0
+-141 -219 279 0
+-141 -220 280 0
+-142 -216 281 0
+-142 -217 282 0
+-142 -218 283 0
+-142 -219 284 0
+-142 -220 285 0
+-143 -216 286 0
+-143 -217 287 0
+-143 -218 288 0
+-143 -219 289 0
+-143 -220 290 0
+-144 -216 291 0
+-144 -217 292 0
+-144 -218 293 0
+-144 -219 294 0
+-144 -220 295 0
+-145 -216 296 0
+-145 -217 297 0
+-145 -218 298 0
+-145 -219 299 0
+-145 -220 300 0
+-146 -221 276 0
+-146 -222 277 0
+-146 -223 278 0
+-146 -224 279 0
+-146 -225 280 0
+-147 -221 281 0
+-147 -222 282 0
+-147 -223 283 0
+-147 -224 284 0
+-147 -225 285 0
+-148 -221 286 0
+-148 -222 287 0
+-148 -223 288 0
+-148 -224 289 0
+-148 -225 290 0
+-149 -221 291 0
+-149 -222 292 0
+-149 -223 293 0
+-149 -224 294 0
+-149 -225 295 0
+-150 -221 296 0
+-150 -222 297 0
+-150 -223 298 0
+-150 -224 299 0
+-150 -225 300 0
+c (Color, Cigar), (Color, Beverage) -> (Cigar, Beverage)
+-226 -251 301 0
+-226 -252 302 0
+-226 -253 303 0
+-226 -254 304 0
+-226 -255 305 0
+-227 -251 306 0
+-227 -252 307 0
+-227 -253 308 0
+-227 -254 309 0
+-227 -255 310 0
+-228 -251 311 0
+-228 -252 312 0
+-228 -253 313 0
+-228 -254 314 0
+-228 -255 315 0
+-229 -251 316 0
+-229 -252 317 0
+-229 -253 318 0
+-229 -254 319 0
+-229 -255 320 0
+-230 -251 321 0
+-230 -252 322 0
+-230 -253 323 0
+-230 -254 324 0
+-230 -255 325 0
+-231 -256 301 0
+-231 -257 302 0
+-231 -258 303 0
+-231 -259 304 0
+-231 -260 305 0
+-232 -256 306 0
+-232 -257 307 0
+-232 -258 308 0
+-232 -259 309 0
+-232 -260 310 0
+-233 -256 311 0
+-233 -257 312 0
+-233 -258 313 0
+-233 -259 314 0
+-233 -260 315 0
+-234 -256 316 0
+-234 -257 317 0
+-234 -258 318 0
+-234 -259 319 0
+-234 -260 320 0
+-235 -256 321 0
+-235 -257 322 0
+-235 -258 323 0
+-235 -259 324 0
+-235 -260 325 0
+-236 -261 301 0
+-236 -262 302 0
+-236 -263 303 0
+-236 -264 304 0
+-236 -265 305 0
+-237 -261 306 0
+-237 -262 307 0
+-237 -263 308 0
+-237 -264 309 0
+-237 -265 310 0
+-238 -261 311 0
+-238 -262 312 0
+-238 -263 313 0
+-238 -264 314 0
+-238 -265 315 0
+-239 -261 316 0
+-239 -262 317 0
+-239 -263 318 0
+-239 -264 319 0
+-239 -265 320 0
+-240 -261 321 0
+-240 -262 322 0
+-240 -263 323 0
+-240 -264 324 0
+-240 -265 325 0
+-241 -266 301 0
+-241 -267 302 0
+-241 -268 303 0
+-241 -269 304 0
+-241 -270 305 0
+-242 -266 306 0
+-242 -267 307 0
+-242 -268 308 0
+-242 -269 309 0
+-242 -270 310 0
+-243 -266 311 0
+-243 -267 312 0
+-243 -268 313 0
+-243 -269 314 0
+-243 -270 315 0
+-244 -266 316 0
+-244 -267 317 0
+-244 -268 318 0
+-244 -269 319 0
+-244 -270 320 0
+-245 -266 321 0
+-245 -267 322 0
+-245 -268 323 0
+-245 -269 324 0
+-245 -270 325 0
+-246 -271 301 0
+-246 -272 302 0
+-246 -273 303 0
+-246 -274 304 0
+-246 -275 305 0
+-247 -271 306 0
+-247 -272 307 0
+-247 -273 308 0
+-247 -274 309 0
+-247 -275 310 0
+-248 -271 311 0
+-248 -272 312 0
+-248 -273 313 0
+-248 -274 314 0
+-248 -275 315 0
+-249 -271 316 0
+-249 -272 317 0
+-249 -273 318 0
+-249 -274 319 0
+-249 -275 320 0
+-250 -271 321 0
+-250 -272 322 0
+-250 -273 323 0
+-250 -274 324 0
+-250 -275 325 0
+c (Color, Cigar), (Color, Pet) -> (Cigar, Pet)
+-226 -276 326 0
+-226 -277 327 0
+-226 -278 328 0
+-226 -279 329 0
+-226 -280 330 0
+-227 -276 331 0
+-227 -277 332 0
+-227 -278 333 0
+-227 -279 334 0
+-227 -280 335 0
+-228 -276 336 0
+-228 -277 337 0
+-228 -278 338 0
+-228 -279 339 0
+-228 -280 340 0
+-229 -276 341 0
+-229 -277 342 0
+-229 -278 343 0
+-229 -279 344 0
+-229 -280 345 0
+-230 -276 346 0
+-230 -277 347 0
+-230 -278 348 0
+-230 -279 349 0
+-230 -280 350 0
+-231 -281 326 0
+-231 -282 327 0
+-231 -283 328 0
+-231 -284 329 0
+-231 -285 330 0
+-232 -281 331 0
+-232 -282 332 0
+-232 -283 333 0
+-232 -284 334 0
+-232 -285 335 0
+-233 -281 336 0
+-233 -282 337 0
+-233 -283 338 0
+-233 -284 339 0
+-233 -285 340 0
+-234 -281 341 0
+-234 -282 342 0
+-234 -283 343 0
+-234 -284 344 0
+-234 -285 345 0
+-235 -281 346 0
+-235 -282 347 0
+-235 -283 348 0
+-235 -284 349 0
+-235 -285 350 0
+-236 -286 326 0
+-236 -287 327 0
+-236 -288 328 0
+-236 -289 329 0
+-236 -290 330 0
+-237 -286 331 0
+-237 -287 332 0
+-237 -288 333 0
+-237 -289 334 0
+-237 -290 335 0
+-238 -286 336 0
+-238 -287 337 0
+-238 -288 338 0
+-238 -289 339 0
+-238 -290 340 0
+-239 -286 341 0
+-239 -287 342 0
+-239 -288 343 0
+-239 -289 344 0
+-239 -290 345 0
+-240 -286 346 0
+-240 -287 347 0
+-240 -288 348 0
+-240 -289 349 0
+-240 -290 350 0
+-241 -291 326 0
+-241 -292 327 0
+-241 -293 328 0
+-241 -294 329 0
+-241 -295 330 0
+-242 -291 331 0
+-242 -292 332 0
+-242 -293 333 0
+-242 -294 334 0
+-242 -295 335 0
+-243 -291 336 0
+-243 -292 337 0
+-243 -293 338 0
+-243 -294 339 0
+-243 -295 340 0
+-244 -291 341 0
+-244 -292 342 0
+-244 -293 343 0
+-244 -294 344 0
+-244 -295 345 0
+-245 -291 346 0
+-245 -292 347 0
+-245 -293 348 0
+-245 -294 349 0
+-245 -295 350 0
+-246 -296 326 0
+-246 -297 327 0
+-246 -298 328 0
+-246 -299 329 0
+-246 -300 330 0
+-247 -296 331 0
+-247 -297 332 0
+-247 -298 333 0
+-247 -299 334 0
+-247 -300 335 0
+-248 -296 336 0
+-248 -297 337 0
+-248 -298 338 0
+-248 -299 339 0
+-248 -300 340 0
+-249 -296 341 0
+-249 -297 342 0
+-249 -298 343 0
+-249 -299 344 0
+-249 -300 345 0
+-250 -296 346 0
+-250 -297 347 0
+-250 -298 348 0
+-250 -299 349 0
+-250 -300 350 0
+c (Cigar, Beverage), (Cigar, Pet) -> (Beverage, Pet)
+-301 -326 351 0
+-301 -327 352 0
+-301 -328 353 0
+-301 -329 354 0
+-301 -330 355 0
+-302 -326 356 0
+-302 -327 357 0
+-302 -328 358 0
+-302 -329 359 0
+-302 -330 360 0
+-303 -326 361 0
+-303 -327 362 0
+-303 -328 363 0
+-303 -329 364 0
+-303 -330 365 0
+-304 -326 366 0
+-304 -327 367 0
+-304 -328 368 0
+-304 -329 369 0
+-304 -330 370 0
+-305 -326 371 0
+-305 -327 372 0
+-305 -328 373 0
+-305 -329 374 0
+-305 -330 375 0
+-306 -331 351 0
+-306 -332 352 0
+-306 -333 353 0
+-306 -334 354 0
+-306 -335 355 0
+-307 -331 356 0
+-307 -332 357 0
+-307 -333 358 0
+-307 -334 359 0
+-307 -335 360 0
+-308 -331 361 0
+-308 -332 362 0
+-308 -333 363 0
+-308 -334 364 0
+-308 -335 365 0
+-309 -331 366 0
+-309 -332 367 0
+-309 -333 368 0
+-309 -334 369 0
+-309 -335 370 0
+-310 -331 371 0
+-310 -332 372 0
+-310 -333 373 0
+-310 -334 374 0
+-310 -335 375 0
+-311 -336 351 0
+-311 -337 352 0
+-311 -338 353 0
+-311 -339 354 0
+-311 -340 355 0
+-312 -336 356 0
+-312 -337 357 0
+-312 -338 358 0
+-312 -339 359 0
+-312 -340 360 0
+-313 -336 361 0
+-313 -337 362 0
+-313 -338 363 0
+-313 -339 364 0
+-313 -340 365 0
+-314 -336 366 0
+-314 -337 367 0
+-314 -338 368 0
+-314 -339 369 0
+-314 -340 370 0
+-315 -336 371 0
+-315 -337 372 0
+-315 -338 373 0
+-315 -339 374 0
+-315 -340 375 0
+-316 -341 351 0
+-316 -342 352 0
+-316 -343 353 0
+-316 -344 354 0
+-316 -345 355 0
+-317 -341 356 0
+-317 -342 357 0
+-317 -343 358 0
+-317 -344 359 0
+-317 -345 360 0
+-318 -341 361 0
+-318 -342 362 0
+-318 -343 363 0
+-318 -344 364 0
+-318 -345 365 0
+-319 -341 366 0
+-319 -342 367 0
+-319 -343 368 0
+-319 -344 369 0
+-319 -345 370 0
+-320 -341 371 0
+-320 -342 372 0
+-320 -343 373 0
+-320 -344 374 0
+-320 -345 375 0
+-321 -346 351 0
+-321 -347 352 0
+-321 -348 353 0
+-321 -349 354 0
+-321 -350 355 0
+-322 -346 356 0
+-322 -347 357 0
+-322 -348 358 0
+-322 -349 359 0
+-322 -350 360 0
+-323 -346 361 0
+-323 -347 362 0
+-323 -348 363 0
+-323 -349 364 0
+-323 -350 365 0
+-324 -346 366 0
+-324 -347 367 0
+-324 -348 368 0
+-324 -349 369 0
+-324 -350 370 0
+-325 -346 371 0
+-325 -347 372 0
+-325 -348 373 0
+-325 -349 374 0
+-325 -350 375 0
+
+c Now, we encode each of the given hints as clauses
+c 1. The Brit lives in the red house
+28 0
+c 2. The Swede keeps dogs as pets
+123 0
+c 3. The Dane drinks tea
+84 0
+c 4. The green house is on the left of the white house
+127 132 137 142 0
+127 132 137 149 0
+127 132 144 142 0
+127 132 144 149 0
+127 139 137 142 0
+127 139 137 149 0
+127 139 144 142 0
+127 139 144 149 0
+134 132 137 142 0
+134 132 137 149 0
+134 132 144 142 0
+134 132 144 149 0
+134 139 137 142 0
+134 139 137 149 0
+134 139 144 142 0
+134 139 144 149 0
+c 5. The green house's owner drinks coffee
+257 0
+c 6. The person who smokes Pall Mall rears birds
+341 0
+c 7. The owner of the yellow house smokes Dunhill
+248 0
+c 8. The man living in the center house drinks milk.
+188 0
+c 9. The Norwegian lives in the first house.
+16 0
+c 10. The man who smokes Blends lives next to the one who keeps cats.
+151 156 161 166 202 207 212 217 0
+151 156 161 166 202 207 212 171 0
+151 156 161 166 202 207 166 217 0
+151 156 161 166 202 207 166 171 0
+151 156 161 166 202 161 212 217 0
+151 156 161 166 202 161 212 171 0
+151 156 161 166 202 161 166 217 0
+151 156 161 166 202 161 166 171 0
+151 156 161 166 156 207 212 217 0
+151 156 161 166 156 207 212 171 0
+151 156 161 166 156 207 166 217 0
+151 156 161 166 156 207 166 171 0
+151 156 161 166 156 161 212 217 0
+151 156 161 166 156 161 212 171 0
+151 156 161 166 156 161 166 217 0
+151 156 161 166 156 161 166 171 0
+151 156 161 222 202 207 212 217 0
+151 156 161 222 202 207 212 171 0
+151 156 161 222 202 207 166 217 0
+151 156 161 222 202 207 166 171 0
+151 156 161 222 202 161 212 217 0
+151 156 161 222 202 161 212 171 0
+151 156 161 222 202 161 166 217 0
+151 156 161 222 202 161 166 171 0
+151 156 161 222 156 207 212 217 0
+151 156 161 222 156 207 212 171 0
+151 156 161 222 156 207 166 217 0
+151 156 161 222 156 207 166 171 0
+151 156 161 222 156 161 212 217 0
+151 156 161 222 156 161 212 171 0
+151 156 161 222 156 161 166 217 0
+151 156 161 222 156 161 166 171 0
+151 156 217 166 202 207 212 217 0
+151 156 217 166 202 207 212 171 0
+151 156 217 166 202 207 166 217 0
+151 156 217 166 202 207 166 171 0
+151 156 217 166 202 161 212 217 0
+151 156 217 166 202 161 212 171 0
+151 156 217 166 202 161 166 217 0
+151 156 217 166 202 161 166 171 0
+151 156 217 166 156 207 212 217 0
+151 156 217 166 156 207 212 171 0
+151 156 217 166 156 207 166 217 0
+151 156 217 166 156 207 166 171 0
+151 156 217 166 156 161 212 217 0
+151 156 217 166 156 161 212 171 0
+151 156 217 166 156 161 166 217 0
+151 156 217 166 156 161 166 171 0
+151 156 217 222 202 207 212 217 0
+151 156 217 222 202 207 212 171 0
+151 156 217 222 202 207 166 217 0
+151 156 217 222 202 207 166 171 0
+151 156 217 222 202 161 212 217 0
+151 156 217 222 202 161 212 171 0
+151 156 217 222 202 161 166 217 0
+151 156 217 222 202 161 166 171 0
+151 156 217 222 156 207 212 217 0
+151 156 217 222 156 207 212 171 0
+151 156 217 222 156 207 166 217 0
+151 156 217 222 156 207 166 171 0
+151 156 217 222 156 161 212 217 0
+151 156 217 222 156 161 212 171 0
+151 156 217 222 156 161 166 217 0
+151 156 217 222 156 161 166 171 0
+151 212 161 166 202 207 212 217 0
+151 212 161 166 202 207 212 171 0
+151 212 161 166 202 207 166 217 0
+151 212 161 166 202 207 166 171 0
+151 212 161 166 202 161 212 217 0
+151 212 161 166 202 161 212 171 0
+151 212 161 166 202 161 166 217 0
+151 212 161 166 202 161 166 171 0
+151 212 161 166 156 207 212 217 0
+151 212 161 166 156 207 212 171 0
+151 212 161 166 156 207 166 217 0
+151 212 161 166 156 207 166 171 0
+151 212 161 166 156 161 212 217 0
+151 212 161 166 156 161 212 171 0
+151 212 161 166 156 161 166 217 0
+151 212 161 166 156 161 166 171 0
+151 212 161 222 202 207 212 217 0
+151 212 161 222 202 207 212 171 0
+151 212 161 222 202 207 166 217 0
+151 212 161 222 202 207 166 171 0
+151 212 161 222 202 161 212 217 0
+151 212 161 222 202 161 212 171 0
+151 212 161 222 202 161 166 217 0
+151 212 161 222 202 161 166 171 0
+151 212 161 222 156 207 212 217 0
+151 212 161 222 156 207 212 171 0
+151 212 161 222 156 207 166 217 0
+151 212 161 222 156 207 166 171 0
+151 212 161 222 156 161 212 217 0
+151 212 161 222 156 161 212 171 0
+151 212 161 222 156 161 166 217 0
+151 212 161 222 156 161 166 171 0
+151 212 217 166 202 207 212 217 0
+151 212 217 166 202 207 212 171 0
+151 212 217 166 202 207 166 217 0
+151 212 217 166 202 207 166 171 0
+151 212 217 166 202 161 212 217 0
+151 212 217 166 202 161 212 171 0
+151 212 217 166 202 161 166 217 0
+151 212 217 166 202 161 166 171 0
+151 212 217 166 156 207 212 217 0
+151 212 217 166 156 207 212 171 0
+151 212 217 166 156 207 166 217 0
+151 212 217 166 156 207 166 171 0
+151 212 217 166 156 161 212 217 0
+151 212 217 166 156 161 212 171 0
+151 212 217 166 156 161 166 217 0
+151 212 217 166 156 161 166 171 0
+151 212 217 222 202 207 212 217 0
+151 212 217 222 202 207 212 171 0
+151 212 217 222 202 207 166 217 0
+151 212 217 222 202 207 166 171 0
+151 212 217 222 202 161 212 217 0
+151 212 217 222 202 161 212 171 0
+151 212 217 222 202 161 166 217 0
+151 212 217 222 202 161 166 171 0
+151 212 217 222 156 207 212 217 0
+151 212 217 222 156 207 212 171 0
+151 212 217 222 156 207 166 217 0
+151 212 217 222 156 207 166 171 0
+151 212 217 222 156 161 212 217 0
+151 212 217 222 156 161 212 171 0
+151 212 217 222 156 161 166 217 0
+151 212 217 222 156 161 166 171 0
+207 156 161 166 202 207 212 217 0
+207 156 161 166 202 207 212 171 0
+207 156 161 166 202 207 166 217 0
+207 156 161 166 202 207 166 171 0
+207 156 161 166 202 161 212 217 0
+207 156 161 166 202 161 212 171 0
+207 156 161 166 202 161 166 217 0
+207 156 161 166 202 161 166 171 0
+207 156 161 166 156 207 212 217 0
+207 156 161 166 156 207 212 171 0
+207 156 161 166 156 207 166 217 0
+207 156 161 166 156 207 166 171 0
+207 156 161 166 156 161 212 217 0
+207 156 161 166 156 161 212 171 0
+207 156 161 166 156 161 166 217 0
+207 156 161 166 156 161 166 171 0
+207 156 161 222 202 207 212 217 0
+207 156 161 222 202 207 212 171 0
+207 156 161 222 202 207 166 217 0
+207 156 161 222 202 207 166 171 0
+207 156 161 222 202 161 212 217 0
+207 156 161 222 202 161 212 171 0
+207 156 161 222 202 161 166 217 0
+207 156 161 222 202 161 166 171 0
+207 156 161 222 156 207 212 217 0
+207 156 161 222 156 207 212 171 0
+207 156 161 222 156 207 166 217 0
+207 156 161 222 156 207 166 171 0
+207 156 161 222 156 161 212 217 0
+207 156 161 222 156 161 212 171 0
+207 156 161 222 156 161 166 217 0
+207 156 161 222 156 161 166 171 0
+207 156 217 166 202 207 212 217 0
+207 156 217 166 202 207 212 171 0
+207 156 217 166 202 207 166 217 0
+207 156 217 166 202 207 166 171 0
+207 156 217 166 202 161 212 217 0
+207 156 217 166 202 161 212 171 0
+207 156 217 166 202 161 166 217 0
+207 156 217 166 202 161 166 171 0
+207 156 217 166 156 207 212 217 0
+207 156 217 166 156 207 212 171 0
+207 156 217 166 156 207 166 217 0
+207 156 217 166 156 207 166 171 0
+207 156 217 166 156 161 212 217 0
+207 156 217 166 156 161 212 171 0
+207 156 217 166 156 161 166 217 0
+207 156 217 166 156 161 166 171 0
+207 156 217 222 202 207 212 217 0
+207 156 217 222 202 207 212 171 0
+207 156 217 222 202 207 166 217 0
+207 156 217 222 202 207 166 171 0
+207 156 217 222 202 161 212 217 0
+207 156 217 222 202 161 212 171 0
+207 156 217 222 202 161 166 217 0
+207 156 217 222 202 161 166 171 0
+207 156 217 222 156 207 212 217 0
+207 156 217 222 156 207 212 171 0
+207 156 217 222 156 207 166 217 0
+207 156 217 222 156 207 166 171 0
+207 156 217 222 156 161 212 217 0
+207 156 217 222 156 161 212 171 0
+207 156 217 222 156 161 166 217 0
+207 156 217 222 156 161 166 171 0
+207 212 161 166 202 207 212 217 0
+207 212 161 166 202 207 212 171 0
+207 212 161 166 202 207 166 217 0
+207 212 161 166 202 207 166 171 0
+207 212 161 166 202 161 212 217 0
+207 212 161 166 202 161 212 171 0
+207 212 161 166 202 161 166 217 0
+207 212 161 166 202 161 166 171 0
+207 212 161 166 156 207 212 217 0
+207 212 161 166 156 207 212 171 0
+207 212 161 166 156 207 166 217 0
+207 212 161 166 156 207 166 171 0
+207 212 161 166 156 161 212 217 0
+207 212 161 166 156 161 212 171 0
+207 212 161 166 156 161 166 217 0
+207 212 161 166 156 161 166 171 0
+207 212 161 222 202 207 212 217 0
+207 212 161 222 202 207 212 171 0
+207 212 161 222 202 207 166 217 0
+207 212 161 222 202 207 166 171 0
+207 212 161 222 202 161 212 217 0
+207 212 161 222 202 161 212 171 0
+207 212 161 222 202 161 166 217 0
+207 212 161 222 202 161 166 171 0
+207 212 161 222 156 207 212 217 0
+207 212 161 222 156 207 212 171 0
+207 212 161 222 156 207 166 217 0
+207 212 161 222 156 207 166 171 0
+207 212 161 222 156 161 212 217 0
+207 212 161 222 156 161 212 171 0
+207 212 161 222 156 161 166 217 0
+207 212 161 222 156 161 166 171 0
+207 212 217 166 202 207 212 217 0
+207 212 217 166 202 207 212 171 0
+207 212 217 166 202 207 166 217 0
+207 212 217 166 202 207 166 171 0
+207 212 217 166 202 161 212 217 0
+207 212 217 166 202 161 212 171 0
+207 212 217 166 202 161 166 217 0
+207 212 217 166 202 161 166 171 0
+207 212 217 166 156 207 212 217 0
+207 212 217 166 156 207 212 171 0
+207 212 217 166 156 207 166 217 0
+207 212 217 166 156 207 166 171 0
+207 212 217 166 156 161 212 217 0
+207 212 217 166 156 161 212 171 0
+207 212 217 166 156 161 166 217 0
+207 212 217 166 156 161 166 171 0
+207 212 217 222 202 207 212 217 0
+207 212 217 222 202 207 212 171 0
+207 212 217 222 202 207 166 217 0
+207 212 217 222 202 207 166 171 0
+207 212 217 222 202 161 212 217 0
+207 212 217 222 202 161 212 171 0
+207 212 217 222 202 161 166 217 0
+207 212 217 222 202 161 166 171 0
+207 212 217 222 156 207 212 217 0
+207 212 217 222 156 207 212 171 0
+207 212 217 222 156 207 166 217 0
+207 212 217 222 156 207 166 171 0
+207 212 217 222 156 161 212 217 0
+207 212 217 222 156 161 212 171 0
+207 212 217 222 156 161 166 217 0
+207 212 217 222 156 161 166 171 0
+c 11. The man who keeps the horse lives next to the man who smokes Dunhill.
+205 210 215 220 153 158 163 168 0
+205 210 215 220 153 158 163 225 0
+205 210 215 220 153 158 220 168 0
+205 210 215 220 153 158 220 225 0
+205 210 215 220 153 215 163 168 0
+205 210 215 220 153 215 163 225 0
+205 210 215 220 153 215 220 168 0
+205 210 215 220 153 215 220 225 0
+205 210 215 220 210 158 163 168 0
+205 210 215 220 210 158 163 225 0
+205 210 215 220 210 158 220 168 0
+205 210 215 220 210 158 220 225 0
+205 210 215 220 210 215 163 168 0
+205 210 215 220 210 215 163 225 0
+205 210 215 220 210 215 220 168 0
+205 210 215 220 210 215 220 225 0
+205 210 215 173 153 158 163 168 0
+205 210 215 173 153 158 163 225 0
+205 210 215 173 153 158 220 168 0
+205 210 215 173 153 158 220 225 0
+205 210 215 173 153 215 163 168 0
+205 210 215 173 153 215 163 225 0
+205 210 215 173 153 215 220 168 0
+205 210 215 173 153 215 220 225 0
+205 210 215 173 210 158 163 168 0
+205 210 215 173 210 158 163 225 0
+205 210 215 173 210 158 220 168 0
+205 210 215 173 210 158 220 225 0
+205 210 215 173 210 215 163 168 0
+205 210 215 173 210 215 163 225 0
+205 210 215 173 210 215 220 168 0
+205 210 215 173 210 215 220 225 0
+205 210 168 220 153 158 163 168 0
+205 210 168 220 153 158 163 225 0
+205 210 168 220 153 158 220 168 0
+205 210 168 220 153 158 220 225 0
+205 210 168 220 153 215 163 168 0
+205 210 168 220 153 215 163 225 0
+205 210 168 220 153 215 220 168 0
+205 210 168 220 153 215 220 225 0
+205 210 168 220 210 158 163 168 0
+205 210 168 220 210 158 163 225 0
+205 210 168 220 210 158 220 168 0
+205 210 168 220 210 158 220 225 0
+205 210 168 220 210 215 163 168 0
+205 210 168 220 210 215 163 225 0
+205 210 168 220 210 215 220 168 0
+205 210 168 220 210 215 220 225 0
+205 210 168 173 153 158 163 168 0
+205 210 168 173 153 158 163 225 0
+205 210 168 173 153 158 220 168 0
+205 210 168 173 153 158 220 225 0
+205 210 168 173 153 215 163 168 0
+205 210 168 173 153 215 163 225 0
+205 210 168 173 153 215 220 168 0
+205 210 168 173 153 215 220 225 0
+205 210 168 173 210 158 163 168 0
+205 210 168 173 210 158 163 225 0
+205 210 168 173 210 158 220 168 0
+205 210 168 173 210 158 220 225 0
+205 210 168 173 210 215 163 168 0
+205 210 168 173 210 215 163 225 0
+205 210 168 173 210 215 220 168 0
+205 210 168 173 210 215 220 225 0
+205 163 215 220 153 158 163 168 0
+205 163 215 220 153 158 163 225 0
+205 163 215 220 153 158 220 168 0
+205 163 215 220 153 158 220 225 0
+205 163 215 220 153 215 163 168 0
+205 163 215 220 153 215 163 225 0
+205 163 215 220 153 215 220 168 0
+205 163 215 220 153 215 220 225 0
+205 163 215 220 210 158 163 168 0
+205 163 215 220 210 158 163 225 0
+205 163 215 220 210 158 220 168 0
+205 163 215 220 210 158 220 225 0
+205 163 215 220 210 215 163 168 0
+205 163 215 220 210 215 163 225 0
+205 163 215 220 210 215 220 168 0
+205 163 215 220 210 215 220 225 0
+205 163 215 173 153 158 163 168 0
+205 163 215 173 153 158 163 225 0
+205 163 215 173 153 158 220 168 0
+205 163 215 173 153 158 220 225 0
+205 163 215 173 153 215 163 168 0
+205 163 215 173 153 215 163 225 0
+205 163 215 173 153 215 220 168 0
+205 163 215 173 153 215 220 225 0
+205 163 215 173 210 158 163 168 0
+205 163 215 173 210 158 163 225 0
+205 163 215 173 210 158 220 168 0
+205 163 215 173 210 158 220 225 0
+205 163 215 173 210 215 163 168 0
+205 163 215 173 210 215 163 225 0
+205 163 215 173 210 215 220 168 0
+205 163 215 173 210 215 220 225 0
+205 163 168 220 153 158 163 168 0
+205 163 168 220 153 158 163 225 0
+205 163 168 220 153 158 220 168 0
+205 163 168 220 153 158 220 225 0
+205 163 168 220 153 215 163 168 0
+205 163 168 220 153 215 163 225 0
+205 163 168 220 153 215 220 168 0
+205 163 168 220 153 215 220 225 0
+205 163 168 220 210 158 163 168 0
+205 163 168 220 210 158 163 225 0
+205 163 168 220 210 158 220 168 0
+205 163 168 220 210 158 220 225 0
+205 163 168 220 210 215 163 168 0
+205 163 168 220 210 215 163 225 0
+205 163 168 220 210 215 220 168 0
+205 163 168 220 210 215 220 225 0
+205 163 168 173 153 158 163 168 0
+205 163 168 173 153 158 163 225 0
+205 163 168 173 153 158 220 168 0
+205 163 168 173 153 158 220 225 0
+205 163 168 173 153 215 163 168 0
+205 163 168 173 153 215 163 225 0
+205 163 168 173 153 215 220 168 0
+205 163 168 173 153 215 220 225 0
+205 163 168 173 210 158 163 168 0
+205 163 168 173 210 158 163 225 0
+205 163 168 173 210 158 220 168 0
+205 163 168 173 210 158 220 225 0
+205 163 168 173 210 215 163 168 0
+205 163 168 173 210 215 163 225 0
+205 163 168 173 210 215 220 168 0
+205 163 168 173 210 215 220 225 0
+158 210 215 220 153 158 163 168 0
+158 210 215 220 153 158 163 225 0
+158 210 215 220 153 158 220 168 0
+158 210 215 220 153 158 220 225 0
+158 210 215 220 153 215 163 168 0
+158 210 215 220 153 215 163 225 0
+158 210 215 220 153 215 220 168 0
+158 210 215 220 153 215 220 225 0
+158 210 215 220 210 158 163 168 0
+158 210 215 220 210 158 163 225 0
+158 210 215 220 210 158 220 168 0
+158 210 215 220 210 158 220 225 0
+158 210 215 220 210 215 163 168 0
+158 210 215 220 210 215 163 225 0
+158 210 215 220 210 215 220 168 0
+158 210 215 220 210 215 220 225 0
+158 210 215 173 153 158 163 168 0
+158 210 215 173 153 158 163 225 0
+158 210 215 173 153 158 220 168 0
+158 210 215 173 153 158 220 225 0
+158 210 215 173 153 215 163 168 0
+158 210 215 173 153 215 163 225 0
+158 210 215 173 153 215 220 168 0
+158 210 215 173 153 215 220 225 0
+158 210 215 173 210 158 163 168 0
+158 210 215 173 210 158 163 225 0
+158 210 215 173 210 158 220 168 0
+158 210 215 173 210 158 220 225 0
+158 210 215 173 210 215 163 168 0
+158 210 215 173 210 215 163 225 0
+158 210 215 173 210 215 220 168 0
+158 210 215 173 210 215 220 225 0
+158 210 168 220 153 158 163 168 0
+158 210 168 220 153 158 163 225 0
+158 210 168 220 153 158 220 168 0
+158 210 168 220 153 158 220 225 0
+158 210 168 220 153 215 163 168 0
+158 210 168 220 153 215 163 225 0
+158 210 168 220 153 215 220 168 0
+158 210 168 220 153 215 220 225 0
+158 210 168 220 210 158 163 168 0
+158 210 168 220 210 158 163 225 0
+158 210 168 220 210 158 220 168 0
+158 210 168 220 210 158 220 225 0
+158 210 168 220 210 215 163 168 0
+158 210 168 220 210 215 163 225 0
+158 210 168 220 210 215 220 168 0
+158 210 168 220 210 215 220 225 0
+158 210 168 173 153 158 163 168 0
+158 210 168 173 153 158 163 225 0
+158 210 168 173 153 158 220 168 0
+158 210 168 173 153 158 220 225 0
+158 210 168 173 153 215 163 168 0
+158 210 168 173 153 215 163 225 0
+158 210 168 173 153 215 220 168 0
+158 210 168 173 153 215 220 225 0
+158 210 168 173 210 158 163 168 0
+158 210 168 173 210 158 163 225 0
+158 210 168 173 210 158 220 168 0
+158 210 168 173 210 158 220 225 0
+158 210 168 173 210 215 163 168 0
+158 210 168 173 210 215 163 225 0
+158 210 168 173 210 215 220 168 0
+158 210 168 173 210 215 220 225 0
+158 163 215 220 153 158 163 168 0
+158 163 215 220 153 158 163 225 0
+158 163 215 220 153 158 220 168 0
+158 163 215 220 153 158 220 225 0
+158 163 215 220 153 215 163 168 0
+158 163 215 220 153 215 163 225 0
+158 163 215 220 153 215 220 168 0
+158 163 215 220 153 215 220 225 0
+158 163 215 220 210 158 163 168 0
+158 163 215 220 210 158 163 225 0
+158 163 215 220 210 158 220 168 0
+158 163 215 220 210 158 220 225 0
+158 163 215 220 210 215 163 168 0
+158 163 215 220 210 215 163 225 0
+158 163 215 220 210 215 220 168 0
+158 163 215 220 210 215 220 225 0
+158 163 215 173 153 158 163 168 0
+158 163 215 173 153 158 163 225 0
+158 163 215 173 153 158 220 168 0
+158 163 215 173 153 158 220 225 0
+158 163 215 173 153 215 163 168 0
+158 163 215 173 153 215 163 225 0
+158 163 215 173 153 215 220 168 0
+158 163 215 173 153 215 220 225 0
+158 163 215 173 210 158 163 168 0
+158 163 215 173 210 158 163 225 0
+158 163 215 173 210 158 220 168 0
+158 163 215 173 210 158 220 225 0
+158 163 215 173 210 215 163 168 0
+158 163 215 173 210 215 163 225 0
+158 163 215 173 210 215 220 168 0
+158 163 215 173 210 215 220 225 0
+158 163 168 220 153 158 163 168 0
+158 163 168 220 153 158 163 225 0
+158 163 168 220 153 158 220 168 0
+158 163 168 220 153 158 220 225 0
+158 163 168 220 153 215 163 168 0
+158 163 168 220 153 215 163 225 0
+158 163 168 220 153 215 220 168 0
+158 163 168 220 153 215 220 225 0
+158 163 168 220 210 158 163 168 0
+158 163 168 220 210 158 163 225 0
+158 163 168 220 210 158 220 168 0
+158 163 168 220 210 158 220 225 0
+158 163 168 220 210 215 163 168 0
+158 163 168 220 210 215 163 225 0
+158 163 168 220 210 215 220 168 0
+158 163 168 220 210 215 220 225 0
+158 163 168 173 153 158 163 168 0
+158 163 168 173 153 158 163 225 0
+158 163 168 173 153 158 220 168 0
+158 163 168 173 153 158 220 225 0
+158 163 168 173 153 215 163 168 0
+158 163 168 173 153 215 163 225 0
+158 163 168 173 153 215 220 168 0
+158 163 168 173 153 215 220 225 0
+158 163 168 173 210 158 163 168 0
+158 163 168 173 210 158 163 225 0
+158 163 168 173 210 158 220 168 0
+158 163 168 173 210 158 220 225 0
+158 163 168 173 210 215 163 168 0
+158 163 168 173 210 215 163 225 0
+158 163 168 173 210 215 220 168 0
+158 163 168 173 210 215 220 225 0
+c 12. The owner who smokes Bluemasters drinks beer.
+306 0
+c 13. The German smokes Prince.
+65 0
+c 14. The Norwegian lives next to the blue house.
+126 131 136 141 16 17 18 19 0
+126 131 136 141 16 17 18 146 0
+126 131 136 141 16 17 141 19 0
+126 131 136 141 16 17 141 146 0
+126 131 136 141 16 136 18 19 0
+126 131 136 141 16 136 18 146 0
+126 131 136 141 16 136 141 19 0
+126 131 136 141 16 136 141 146 0
+126 131 136 141 131 17 18 19 0
+126 131 136 141 131 17 18 146 0
+126 131 136 141 131 17 141 19 0
+126 131 136 141 131 17 141 146 0
+126 131 136 141 131 136 18 19 0
+126 131 136 141 131 136 18 146 0
+126 131 136 141 131 136 141 19 0
+126 131 136 141 131 136 141 146 0
+126 131 136 20 16 17 18 19 0
+126 131 136 20 16 17 18 146 0
+126 131 136 20 16 17 141 19 0
+126 131 136 20 16 17 141 146 0
+126 131 136 20 16 136 18 19 0
+126 131 136 20 16 136 18 146 0
+126 131 136 20 16 136 141 19 0
+126 131 136 20 16 136 141 146 0
+126 131 136 20 131 17 18 19 0
+126 131 136 20 131 17 18 146 0
+126 131 136 20 131 17 141 19 0
+126 131 136 20 131 17 141 146 0
+126 131 136 20 131 136 18 19 0
+126 131 136 20 131 136 18 146 0
+126 131 136 20 131 136 141 19 0
+126 131 136 20 131 136 141 146 0
+126 131 19 141 16 17 18 19 0
+126 131 19 141 16 17 18 146 0
+126 131 19 141 16 17 141 19 0
+126 131 19 141 16 17 141 146 0
+126 131 19 141 16 136 18 19 0
+126 131 19 141 16 136 18 146 0
+126 131 19 141 16 136 141 19 0
+126 131 19 141 16 136 141 146 0
+126 131 19 141 131 17 18 19 0
+126 131 19 141 131 17 18 146 0
+126 131 19 141 131 17 141 19 0
+126 131 19 141 131 17 141 146 0
+126 131 19 141 131 136 18 19 0
+126 131 19 141 131 136 18 146 0
+126 131 19 141 131 136 141 19 0
+126 131 19 141 131 136 141 146 0
+126 131 19 20 16 17 18 19 0
+126 131 19 20 16 17 18 146 0
+126 131 19 20 16 17 141 19 0
+126 131 19 20 16 17 141 146 0
+126 131 19 20 16 136 18 19 0
+126 131 19 20 16 136 18 146 0
+126 131 19 20 16 136 141 19 0
+126 131 19 20 16 136 141 146 0
+126 131 19 20 131 17 18 19 0
+126 131 19 20 131 17 18 146 0
+126 131 19 20 131 17 141 19 0
+126 131 19 20 131 17 141 146 0
+126 131 19 20 131 136 18 19 0
+126 131 19 20 131 136 18 146 0
+126 131 19 20 131 136 141 19 0
+126 131 19 20 131 136 141 146 0
+126 18 136 141 16 17 18 19 0
+126 18 136 141 16 17 18 146 0
+126 18 136 141 16 17 141 19 0
+126 18 136 141 16 17 141 146 0
+126 18 136 141 16 136 18 19 0
+126 18 136 141 16 136 18 146 0
+126 18 136 141 16 136 141 19 0
+126 18 136 141 16 136 141 146 0
+126 18 136 141 131 17 18 19 0
+126 18 136 141 131 17 18 146 0
+126 18 136 141 131 17 141 19 0
+126 18 136 141 131 17 141 146 0
+126 18 136 141 131 136 18 19 0
+126 18 136 141 131 136 18 146 0
+126 18 136 141 131 136 141 19 0
+126 18 136 141 131 136 141 146 0
+126 18 136 20 16 17 18 19 0
+126 18 136 20 16 17 18 146 0
+126 18 136 20 16 17 141 19 0
+126 18 136 20 16 17 141 146 0
+126 18 136 20 16 136 18 19 0
+126 18 136 20 16 136 18 146 0
+126 18 136 20 16 136 141 19 0
+126 18 136 20 16 136 141 146 0
+126 18 136 20 131 17 18 19 0
+126 18 136 20 131 17 18 146 0
+126 18 136 20 131 17 141 19 0
+126 18 136 20 131 17 141 146 0
+126 18 136 20 131 136 18 19 0
+126 18 136 20 131 136 18 146 0
+126 18 136 20 131 136 141 19 0
+126 18 136 20 131 136 141 146 0
+126 18 19 141 16 17 18 19 0
+126 18 19 141 16 17 18 146 0
+126 18 19 141 16 17 141 19 0
+126 18 19 141 16 17 141 146 0
+126 18 19 141 16 136 18 19 0
+126 18 19 141 16 136 18 146 0
+126 18 19 141 16 136 141 19 0
+126 18 19 141 16 136 141 146 0
+126 18 19 141 131 17 18 19 0
+126 18 19 141 131 17 18 146 0
+126 18 19 141 131 17 141 19 0
+126 18 19 141 131 17 141 146 0
+126 18 19 141 131 136 18 19 0
+126 18 19 141 131 136 18 146 0
+126 18 19 141 131 136 141 19 0
+126 18 19 141 131 136 141 146 0
+126 18 19 20 16 17 18 19 0
+126 18 19 20 16 17 18 146 0
+126 18 19 20 16 17 141 19 0
+126 18 19 20 16 17 141 146 0
+126 18 19 20 16 136 18 19 0
+126 18 19 20 16 136 18 146 0
+126 18 19 20 16 136 141 19 0
+126 18 19 20 16 136 141 146 0
+126 18 19 20 131 17 18 19 0
+126 18 19 20 131 17 18 146 0
+126 18 19 20 131 17 141 19 0
+126 18 19 20 131 17 141 146 0
+126 18 19 20 131 136 18 19 0
+126 18 19 20 131 136 18 146 0
+126 18 19 20 131 136 141 19 0
+126 18 19 20 131 136 141 146 0
+17 131 136 141 16 17 18 19 0
+17 131 136 141 16 17 18 146 0
+17 131 136 141 16 17 141 19 0
+17 131 136 141 16 17 141 146 0
+17 131 136 141 16 136 18 19 0
+17 131 136 141 16 136 18 146 0
+17 131 136 141 16 136 141 19 0
+17 131 136 141 16 136 141 146 0
+17 131 136 141 131 17 18 19 0
+17 131 136 141 131 17 18 146 0
+17 131 136 141 131 17 141 19 0
+17 131 136 141 131 17 141 146 0
+17 131 136 141 131 136 18 19 0
+17 131 136 141 131 136 18 146 0
+17 131 136 141 131 136 141 19 0
+17 131 136 141 131 136 141 146 0
+17 131 136 20 16 17 18 19 0
+17 131 136 20 16 17 18 146 0
+17 131 136 20 16 17 141 19 0
+17 131 136 20 16 17 141 146 0
+17 131 136 20 16 136 18 19 0
+17 131 136 20 16 136 18 146 0
+17 131 136 20 16 136 141 19 0
+17 131 136 20 16 136 141 146 0
+17 131 136 20 131 17 18 19 0
+17 131 136 20 131 17 18 146 0
+17 131 136 20 131 17 141 19 0
+17 131 136 20 131 17 141 146 0
+17 131 136 20 131 136 18 19 0
+17 131 136 20 131 136 18 146 0
+17 131 136 20 131 136 141 19 0
+17 131 136 20 131 136 141 146 0
+17 131 19 141 16 17 18 19 0
+17 131 19 141 16 17 18 146 0
+17 131 19 141 16 17 141 19 0
+17 131 19 141 16 17 141 146 0
+17 131 19 141 16 136 18 19 0
+17 131 19 141 16 136 18 146 0
+17 131 19 141 16 136 141 19 0
+17 131 19 141 16 136 141 146 0
+17 131 19 141 131 17 18 19 0
+17 131 19 141 131 17 18 146 0
+17 131 19 141 131 17 141 19 0
+17 131 19 141 131 17 141 146 0
+17 131 19 141 131 136 18 19 0
+17 131 19 141 131 136 18 146 0
+17 131 19 141 131 136 141 19 0
+17 131 19 141 131 136 141 146 0
+17 131 19 20 16 17 18 19 0
+17 131 19 20 16 17 18 146 0
+17 131 19 20 16 17 141 19 0
+17 131 19 20 16 17 141 146 0
+17 131 19 20 16 136 18 19 0
+17 131 19 20 16 136 18 146 0
+17 131 19 20 16 136 141 19 0
+17 131 19 20 16 136 141 146 0
+17 131 19 20 131 17 18 19 0
+17 131 19 20 131 17 18 146 0
+17 131 19 20 131 17 141 19 0
+17 131 19 20 131 17 141 146 0
+17 131 19 20 131 136 18 19 0
+17 131 19 20 131 136 18 146 0
+17 131 19 20 131 136 141 19 0
+17 131 19 20 131 136 141 146 0
+17 18 136 141 16 17 18 19 0
+17 18 136 141 16 17 18 146 0
+17 18 136 141 16 17 141 19 0
+17 18 136 141 16 17 141 146 0
+17 18 136 141 16 136 18 19 0
+17 18 136 141 16 136 18 146 0
+17 18 136 141 16 136 141 19 0
+17 18 136 141 16 136 141 146 0
+17 18 136 141 131 17 18 19 0
+17 18 136 141 131 17 18 146 0
+17 18 136 141 131 17 141 19 0
+17 18 136 141 131 17 141 146 0
+17 18 136 141 131 136 18 19 0
+17 18 136 141 131 136 18 146 0
+17 18 136 141 131 136 141 19 0
+17 18 136 141 131 136 141 146 0
+17 18 136 20 16 17 18 19 0
+17 18 136 20 16 17 18 146 0
+17 18 136 20 16 17 141 19 0
+17 18 136 20 16 17 141 146 0
+17 18 136 20 16 136 18 19 0
+17 18 136 20 16 136 18 146 0
+17 18 136 20 16 136 141 19 0
+17 18 136 20 16 136 141 146 0
+17 18 136 20 131 17 18 19 0
+17 18 136 20 131 17 18 146 0
+17 18 136 20 131 17 141 19 0
+17 18 136 20 131 17 141 146 0
+17 18 136 20 131 136 18 19 0
+17 18 136 20 131 136 18 146 0
+17 18 136 20 131 136 141 19 0
+17 18 136 20 131 136 141 146 0
+17 18 19 141 16 17 18 19 0
+17 18 19 141 16 17 18 146 0
+17 18 19 141 16 17 141 19 0
+17 18 19 141 16 17 141 146 0
+17 18 19 141 16 136 18 19 0
+17 18 19 141 16 136 18 146 0
+17 18 19 141 16 136 141 19 0
+17 18 19 141 16 136 141 146 0
+17 18 19 141 131 17 18 19 0
+17 18 19 141 131 17 18 146 0
+17 18 19 141 131 17 141 19 0
+17 18 19 141 131 17 141 146 0
+17 18 19 141 131 136 18 19 0
+17 18 19 141 131 136 18 146 0
+17 18 19 141 131 136 141 19 0
+17 18 19 141 131 136 141 146 0
+17 18 19 20 16 17 18 19 0
+17 18 19 20 16 17 18 146 0
+17 18 19 20 16 17 141 19 0
+17 18 19 20 16 17 141 146 0
+17 18 19 20 16 136 18 19 0
+17 18 19 20 16 136 18 146 0
+17 18 19 20 16 136 141 19 0
+17 18 19 20 16 136 141 146 0
+17 18 19 20 131 17 18 19 0
+17 18 19 20 131 17 18 146 0
+17 18 19 20 131 17 141 19 0
+17 18 19 20 131 17 141 146 0
+17 18 19 20 131 136 18 19 0
+17 18 19 20 131 136 18 146 0
+17 18 19 20 131 136 141 19 0
+17 18 19 20 131 136 141 146 0
+c 15. The man who smokes Blends has a neighbor who drinks water.
+151 156 161 166 180 185 190 195 0
+151 156 161 166 180 185 190 171 0
+151 156 161 166 180 185 166 195 0
+151 156 161 166 180 185 166 171 0
+151 156 161 166 180 161 190 195 0
+151 156 161 166 180 161 190 171 0
+151 156 161 166 180 161 166 195 0
+151 156 161 166 180 161 166 171 0
+151 156 161 166 156 185 190 195 0
+151 156 161 166 156 185 190 171 0
+151 156 161 166 156 185 166 195 0
+151 156 161 166 156 185 166 171 0
+151 156 161 166 156 161 190 195 0
+151 156 161 166 156 161 190 171 0
+151 156 161 166 156 161 166 195 0
+151 156 161 166 156 161 166 171 0
+151 156 161 200 180 185 190 195 0
+151 156 161 200 180 185 190 171 0
+151 156 161 200 180 185 166 195 0
+151 156 161 200 180 185 166 171 0
+151 156 161 200 180 161 190 195 0
+151 156 161 200 180 161 190 171 0
+151 156 161 200 180 161 166 195 0
+151 156 161 200 180 161 166 171 0
+151 156 161 200 156 185 190 195 0
+151 156 161 200 156 185 190 171 0
+151 156 161 200 156 185 166 195 0
+151 156 161 200 156 185 166 171 0
+151 156 161 200 156 161 190 195 0
+151 156 161 200 156 161 190 171 0
+151 156 161 200 156 161 166 195 0
+151 156 161 200 156 161 166 171 0
+151 156 195 166 180 185 190 195 0
+151 156 195 166 180 185 190 171 0
+151 156 195 166 180 185 166 195 0
+151 156 195 166 180 185 166 171 0
+151 156 195 166 180 161 190 195 0
+151 156 195 166 180 161 190 171 0
+151 156 195 166 180 161 166 195 0
+151 156 195 166 180 161 166 171 0
+151 156 195 166 156 185 190 195 0
+151 156 195 166 156 185 190 171 0
+151 156 195 166 156 185 166 195 0
+151 156 195 166 156 185 166 171 0
+151 156 195 166 156 161 190 195 0
+151 156 195 166 156 161 190 171 0
+151 156 195 166 156 161 166 195 0
+151 156 195 166 156 161 166 171 0
+151 156 195 200 180 185 190 195 0
+151 156 195 200 180 185 190 171 0
+151 156 195 200 180 185 166 195 0
+151 156 195 200 180 185 166 171 0
+151 156 195 200 180 161 190 195 0
+151 156 195 200 180 161 190 171 0
+151 156 195 200 180 161 166 195 0
+151 156 195 200 180 161 166 171 0
+151 156 195 200 156 185 190 195 0
+151 156 195 200 156 185 190 171 0
+151 156 195 200 156 185 166 195 0
+151 156 195 200 156 185 166 171 0
+151 156 195 200 156 161 190 195 0
+151 156 195 200 156 161 190 171 0
+151 156 195 200 156 161 166 195 0
+151 156 195 200 156 161 166 171 0
+151 190 161 166 180 185 190 195 0
+151 190 161 166 180 185 190 171 0
+151 190 161 166 180 185 166 195 0
+151 190 161 166 180 185 166 171 0
+151 190 161 166 180 161 190 195 0
+151 190 161 166 180 161 190 171 0
+151 190 161 166 180 161 166 195 0
+151 190 161 166 180 161 166 171 0
+151 190 161 166 156 185 190 195 0
+151 190 161 166 156 185 190 171 0
+151 190 161 166 156 185 166 195 0
+151 190 161 166 156 185 166 171 0
+151 190 161 166 156 161 190 195 0
+151 190 161 166 156 161 190 171 0
+151 190 161 166 156 161 166 195 0
+151 190 161 166 156 161 166 171 0
+151 190 161 200 180 185 190 195 0
+151 190 161 200 180 185 190 171 0
+151 190 161 200 180 185 166 195 0
+151 190 161 200 180 185 166 171 0
+151 190 161 200 180 161 190 195 0
+151 190 161 200 180 161 190 171 0
+151 190 161 200 180 161 166 195 0
+151 190 161 200 180 161 166 171 0
+151 190 161 200 156 185 190 195 0
+151 190 161 200 156 185 190 171 0
+151 190 161 200 156 185 166 195 0
+151 190 161 200 156 185 166 171 0
+151 190 161 200 156 161 190 195 0
+151 190 161 200 156 161 190 171 0
+151 190 161 200 156 161 166 195 0
+151 190 161 200 156 161 166 171 0
+151 190 195 166 180 185 190 195 0
+151 190 195 166 180 185 190 171 0
+151 190 195 166 180 185 166 195 0
+151 190 195 166 180 185 166 171 0
+151 190 195 166 180 161 190 195 0
+151 190 195 166 180 161 190 171 0
+151 190 195 166 180 161 166 195 0
+151 190 195 166 180 161 166 171 0
+151 190 195 166 156 185 190 195 0
+151 190 195 166 156 185 190 171 0
+151 190 195 166 156 185 166 195 0
+151 190 195 166 156 185 166 171 0
+151 190 195 166 156 161 190 195 0
+151 190 195 166 156 161 190 171 0
+151 190 195 166 156 161 166 195 0
+151 190 195 166 156 161 166 171 0
+151 190 195 200 180 185 190 195 0
+151 190 195 200 180 185 190 171 0
+151 190 195 200 180 185 166 195 0
+151 190 195 200 180 185 166 171 0
+151 190 195 200 180 161 190 195 0
+151 190 195 200 180 161 190 171 0
+151 190 195 200 180 161 166 195 0
+151 190 195 200 180 161 166 171 0
+151 190 195 200 156 185 190 195 0
+151 190 195 200 156 185 190 171 0
+151 190 195 200 156 185 166 195 0
+151 190 195 200 156 185 166 171 0
+151 190 195 200 156 161 190 195 0
+151 190 195 200 156 161 190 171 0
+151 190 195 200 156 161 166 195 0
+151 190 195 200 156 161 166 171 0
+185 156 161 166 180 185 190 195 0
+185 156 161 166 180 185 190 171 0
+185 156 161 166 180 185 166 195 0
+185 156 161 166 180 185 166 171 0
+185 156 161 166 180 161 190 195 0
+185 156 161 166 180 161 190 171 0
+185 156 161 166 180 161 166 195 0
+185 156 161 166 180 161 166 171 0
+185 156 161 166 156 185 190 195 0
+185 156 161 166 156 185 190 171 0
+185 156 161 166 156 185 166 195 0
+185 156 161 166 156 185 166 171 0
+185 156 161 166 156 161 190 195 0
+185 156 161 166 156 161 190 171 0
+185 156 161 166 156 161 166 195 0
+185 156 161 166 156 161 166 171 0
+185 156 161 200 180 185 190 195 0
+185 156 161 200 180 185 190 171 0
+185 156 161 200 180 185 166 195 0
+185 156 161 200 180 185 166 171 0
+185 156 161 200 180 161 190 195 0
+185 156 161 200 180 161 190 171 0
+185 156 161 200 180 161 166 195 0
+185 156 161 200 180 161 166 171 0
+185 156 161 200 156 185 190 195 0
+185 156 161 200 156 185 190 171 0
+185 156 161 200 156 185 166 195 0
+185 156 161 200 156 185 166 171 0
+185 156 161 200 156 161 190 195 0
+185 156 161 200 156 161 190 171 0
+185 156 161 200 156 161 166 195 0
+185 156 161 200 156 161 166 171 0
+185 156 195 166 180 185 190 195 0
+185 156 195 166 180 185 190 171 0
+185 156 195 166 180 185 166 195 0
+185 156 195 166 180 185 166 171 0
+185 156 195 166 180 161 190 195 0
+185 156 195 166 180 161 190 171 0
+185 156 195 166 180 161 166 195 0
+185 156 195 166 180 161 166 171 0
+185 156 195 166 156 185 190 195 0
+185 156 195 166 156 185 190 171 0
+185 156 195 166 156 185 166 195 0
+185 156 195 166 156 185 166 171 0
+185 156 195 166 156 161 190 195 0
+185 156 195 166 156 161 190 171 0
+185 156 195 166 156 161 166 195 0
+185 156 195 166 156 161 166 171 0
+185 156 195 200 180 185 190 195 0
+185 156 195 200 180 185 190 171 0
+185 156 195 200 180 185 166 195 0
+185 156 195 200 180 185 166 171 0
+185 156 195 200 180 161 190 195 0
+185 156 195 200 180 161 190 171 0
+185 156 195 200 180 161 166 195 0
+185 156 195 200 180 161 166 171 0
+185 156 195 200 156 185 190 195 0
+185 156 195 200 156 185 190 171 0
+185 156 195 200 156 185 166 195 0
+185 156 195 200 156 185 166 171 0
+185 156 195 200 156 161 190 195 0
+185 156 195 200 156 161 190 171 0
+185 156 195 200 156 161 166 195 0
+185 156 195 200 156 161 166 171 0
+185 190 161 166 180 185 190 195 0
+185 190 161 166 180 185 190 171 0
+185 190 161 166 180 185 166 195 0
+185 190 161 166 180 185 166 171 0
+185 190 161 166 180 161 190 195 0
+185 190 161 166 180 161 190 171 0
+185 190 161 166 180 161 166 195 0
+185 190 161 166 180 161 166 171 0
+185 190 161 166 156 185 190 195 0
+185 190 161 166 156 185 190 171 0
+185 190 161 166 156 185 166 195 0
+185 190 161 166 156 185 166 171 0
+185 190 161 166 156 161 190 195 0
+185 190 161 166 156 161 190 171 0
+185 190 161 166 156 161 166 195 0
+185 190 161 166 156 161 166 171 0
+185 190 161 200 180 185 190 195 0
+185 190 161 200 180 185 190 171 0
+185 190 161 200 180 185 166 195 0
+185 190 161 200 180 185 166 171 0
+185 190 161 200 180 161 190 195 0
+185 190 161 200 180 161 190 171 0
+185 190 161 200 180 161 166 195 0
+185 190 161 200 180 161 166 171 0
+185 190 161 200 156 185 190 195 0
+185 190 161 200 156 185 190 171 0
+185 190 161 200 156 185 166 195 0
+185 190 161 200 156 185 166 171 0
+185 190 161 200 156 161 190 195 0
+185 190 161 200 156 161 190 171 0
+185 190 161 200 156 161 166 195 0
+185 190 161 200 156 161 166 171 0
+185 190 195 166 180 185 190 195 0
+185 190 195 166 180 185 190 171 0
+185 190 195 166 180 185 166 195 0
+185 190 195 166 180 185 166 171 0
+185 190 195 166 180 161 190 195 0
+185 190 195 166 180 161 190 171 0
+185 190 195 166 180 161 166 195 0
+185 190 195 166 180 161 166 171 0
+185 190 195 166 156 185 190 195 0
+185 190 195 166 156 185 190 171 0
+185 190 195 166 156 185 166 195 0
+185 190 195 166 156 185 166 171 0
+185 190 195 166 156 161 190 195 0
+185 190 195 166 156 161 190 171 0
+185 190 195 166 156 161 166 195 0
+185 190 195 166 156 161 166 171 0
+185 190 195 200 180 185 190 195 0
+185 190 195 200 180 185 190 171 0
+185 190 195 200 180 185 166 195 0
+185 190 195 200 180 185 166 171 0
+185 190 195 200 180 161 190 195 0
+185 190 195 200 180 161 190 171 0
+185 190 195 200 180 161 166 195 0
+185 190 195 200 180 161 166 171 0
+185 190 195 200 156 185 190 195 0
+185 190 195 200 156 185 190 171 0
+185 190 195 200 156 185 166 195 0
+185 190 195 200 156 185 166 171 0
+185 190 195 200 156 161 190 195 0
+185 190 195 200 156 161 190 171 0
+185 190 195 200 156 161 166 195 0
+185 190 195 200 156 161 166 171 0
