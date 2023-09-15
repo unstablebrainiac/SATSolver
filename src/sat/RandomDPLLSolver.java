@@ -14,6 +14,9 @@ public class RandomDPLLSolver extends DPLLSolver {
     @Override
     protected Optional<Integer> choosePropositionToAssign(CNFProblem problem, CNFSolution solution) {
         int unassignedPropositionsCount = problem.getPropositions().size() - solution.getAssignment().size();
+        if (unassignedPropositionsCount == 0) {
+            return Optional.empty();
+        }
         int index = random.nextInt(unassignedPropositionsCount);
         return problem.getPropositions()
                 .stream()

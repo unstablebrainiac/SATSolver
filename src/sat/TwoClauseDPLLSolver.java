@@ -30,6 +30,9 @@ public class TwoClauseDPLLSolver extends DPLLSolver {
 
         if (propositionToTwoClauseCount.isEmpty()) {
             int unassignedPropositionsCount = problem.getPropositions().size() - solution.getAssignment().size();
+            if (unassignedPropositionsCount == 0) {
+                return Optional.empty();
+            }
             int index = random.nextInt(unassignedPropositionsCount);
             return problem.getPropositions()
                     .stream()
