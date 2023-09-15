@@ -37,7 +37,8 @@ public class PuzzleSolverMain {
         long endTime = System.nanoTime();
         System.out.println("Time to read problem: " + (endTime - startTime) / 1_000_000 + "ms");
 
-        List<CNFSolver> solvers = Arrays.asList(new RandomDPLLSolver(), new TwoClauseDPLLSolver());
+        long seed = Long.parseLong(args[0]);
+        List<CNFSolver> solvers = Arrays.asList(new RandomDPLLSolver(seed), new TwoClauseDPLLSolver(seed));
         List<CNFSolution> solutions = new ArrayList<>();
         for (CNFSolver solver : solvers) {
             CNFProblem problemCopy = new CNFProblem(problem);

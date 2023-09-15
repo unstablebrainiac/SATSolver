@@ -1,29 +1,51 @@
 package sat;
 
-import com.google.common.collect.Sets;
-
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TwoClauseDPLLSolver extends DPLLSolver {
 
+    Random random;
+
+    public TwoClauseDPLLSolver(long seed) {
+        random = new Random(seed);
+    }
+
     @Override
     protected Optional<Integer> choosePropositionToAssign(CNFProblem problem, CNFSolution solution) {
-        // TODO Choose the proposition that appears in the most two clauses
-        Optional<Clause> maybeTwoClause = problem.getClauses()
+        Map<Integer, Long> propositionToTwoClauseCount = problem.getPropositions()
                 .stream()
-                .filter(clause -> clause.size() == 2)
-                .findAny();
-        if (maybeTwoClause.isPresent()) {
-            Clause twoClause = maybeTwoClause.get();
-            return Optional.of(Math.abs(twoClause.getProposition(0)));
-        } else {
-            return Sets.difference(
-                            new HashSet<>(problem.getPropositions()),
-                            solution.getAssignment().keySet()
-                    )
+                .filter(proposition -> !solution.getAssignment().containsKey(proposition))
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        proposition -> Stream.of(
+                                        problem.getClausesContainingProposition(proposition),
+                                        problem.getClausesContainingProposition(-proposition)
+                                )
+                                .filter(clause -> clause.size() == 2)
+                                .count()
+                ));
+
+        if (propositionToTwoClauseCount.isEmpty()) {
+            int unassignedPropositionsCount = problem.getPropositions().size() - solution.getAssignment().size();
+            int index = random.nextInt(unassignedPropositionsCount);
+            return problem.getPropositions()
                     .stream()
-                    .findAny();
+                    .filter(proposition -> !solution.getAssignment().containsKey(proposition))
+                    .skip(index)
+                    .findFirst();
         }
+        Long max = propositionToTwoClauseCount.values().stream().max(Comparator.naturalOrder()).get();
+        List<Integer> propositionsWithMaxTwoClauses = propositionToTwoClauseCount
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(max))
+                .map(Map.Entry::getKey)
+                .toList();
+
+        int index = random.nextInt(propositionsWithMaxTwoClauses.size());
+        return Optional.of(propositionsWithMaxTwoClauses.get(index));
     }
 }

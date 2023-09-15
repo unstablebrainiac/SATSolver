@@ -1,19 +1,24 @@
 package sat;
 
-import com.google.common.collect.Sets;
-
-import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 
 public class RandomDPLLSolver extends DPLLSolver {
 
+    Random random;
+
+    public RandomDPLLSolver(long seed) {
+        random = new Random(seed);
+    }
+
     @Override
     protected Optional<Integer> choosePropositionToAssign(CNFProblem problem, CNFSolution solution) {
-        return Sets.difference(
-                        new HashSet<>(problem.getPropositions()),
-                        solution.getAssignment().keySet()
-                )
+        int unassignedPropositionsCount = problem.getPropositions().size() - solution.getAssignment().size();
+        int index = random.nextInt(unassignedPropositionsCount);
+        return problem.getPropositions()
                 .stream()
-                .findAny();
+                .filter(proposition -> !solution.getAssignment().containsKey(proposition))
+                .skip(index)
+                .findFirst();
     }
 }
