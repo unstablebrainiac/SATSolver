@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public class TwoClauseDPLLSolver extends DPLLSolver {
 
-    Random random;
+    private final Random random;
 
     public TwoClauseDPLLSolver(long seed) {
         random = new Random(seed);
@@ -24,15 +24,17 @@ public class TwoClauseDPLLSolver extends DPLLSolver {
                                         problem.getClausesContainingProposition(proposition),
                                         problem.getClausesContainingProposition(-proposition)
                                 )
+                                .flatMap(Collection::stream)
                                 .filter(clause -> clause.size() == 2)
                                 .count()
                 ));
 
         if (propositionToTwoClauseCount.isEmpty()) {
+            return Optional.empty();
+        }
+        Long max = propositionToTwoClauseCount.values().stream().max(Comparator.naturalOrder()).get();
+        if (max == 0) {
             int unassignedPropositionsCount = problem.getPropositions().size() - solution.getAssignment().size();
-            if (unassignedPropositionsCount == 0) {
-                return Optional.empty();
-            }
             int index = random.nextInt(unassignedPropositionsCount);
             return problem.getPropositions()
                     .stream()
@@ -40,7 +42,6 @@ public class TwoClauseDPLLSolver extends DPLLSolver {
                     .skip(index)
                     .findFirst();
         }
-        Long max = propositionToTwoClauseCount.values().stream().max(Comparator.naturalOrder()).get();
         List<Integer> propositionsWithMaxTwoClauses = propositionToTwoClauseCount
                 .entrySet()
                 .stream()

@@ -15,17 +15,17 @@ public abstract class DPLLSolver implements CNFSolver {
     private boolean dpll(CNFProblem problem, CNFSolution solution) {
         // Keep applying unit preference rule until there are no more unit clauses
         while (applyUnitPreferenceRule(problem, solution)) {
-            if (problem.getClauses().isEmpty()) {
-                return true;
-            }
             if (!solution.isSatisfiable()) {
                 return false;
+            }
+            if (problem.getClauses().isEmpty()) {
+                return true;
             }
         }
 
         Optional<Integer> maybeProposition = choosePropositionToAssign(problem, solution);
         if (maybeProposition.isEmpty()) {
-            return true;
+            return problem.getClauses().isEmpty();
         }
         Integer proposition = maybeProposition.get();
 
@@ -57,14 +57,14 @@ public abstract class DPLLSolver implements CNFSolver {
     protected abstract Optional<Integer> choosePropositionToAssign(CNFProblem problem, CNFSolution solution);
 
     private boolean applyUnitPreferenceRule(CNFProblem problem, CNFSolution solution) {
-        List<Integer> unitPropositions = problem.getClauses()
+        Optional<Integer> maybeUnitProposition = problem.getClauses()
                 .stream()
                 .filter(clause -> clause.size() == 1)
-                .map(clause -> clause.getProposition(0))
-                .toList();
-        unitPropositions
-                .forEach(proposition -> applyAssignment(Math.abs(proposition), proposition > 0, problem, solution));
-        return !unitPropositions.isEmpty();
+                .findFirst()
+                .map(clause -> clause.getProposition(0));
+        maybeUnitProposition
+                .ifPresent(proposition -> applyAssignment(Math.abs(proposition), proposition > 0, problem, solution));
+        return maybeUnitProposition.isPresent();
     }
 
     private boolean applyAssignment(Integer proposition, boolean isPositive, CNFProblem problem, CNFSolution solution) {
@@ -80,7 +80,10 @@ public abstract class DPLLSolver implements CNFSolver {
 
         problem.getClauses().removeAll(positiveClauses);
         negativeClauses.forEach(clause -> clause.getPropositions().remove(Integer.valueOf(proposition * (isPositive ? -1 : 1))));
-        problem.getClauses().removeIf(Clause::isEmpty);
+        if (problem.getClauses().stream().anyMatch(Clause::isEmpty)) {
+            solution.setSatisfiable(false);
+            return false;
+        }
         return true;
     }
 }

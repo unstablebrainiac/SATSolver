@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class RandomDPLLSolver extends DPLLSolver {
 
-    Random random;
+    private final Random random;
 
     public RandomDPLLSolver(long seed) {
         random = new Random(seed);
