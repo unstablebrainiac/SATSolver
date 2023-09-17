@@ -40,7 +40,9 @@ public class PuzzleSolverMain {
         long seed = Long.parseLong(args[0]);
         List<CNFSolver> solvers = Arrays.asList(
                 new RandomDPLLSolver(seed),
-                new TwoClauseDPLLSolver(seed)
+                new TwoClauseDPLLSolver(seed),
+                new SequentialDPLLSolver(),
+                new SequentialTwoClauseDPLLSolver()
         );
         List<CNFSolution> solutions = new ArrayList<>();
         for (CNFSolver solver : solvers) {
