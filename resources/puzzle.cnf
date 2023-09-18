@@ -33,21 +33,21 @@ c First, we need to define a set of propositions. We select any two attributes o
 c So, in total, we have 25x6C2 = 25x15 = 375 propositions.
 c We will use alphabetical ordering for each of the values of the variables
 c We then define the propositions as follows:
-c For i in [1, 25], Proposition i = Person [(i + 4) / 5] lives in house number [(i + 4) % 5 + 1]
-c For i in [26, 50], Proposition i = Person [(i + 4) / 5] has a house of colour [(i + 4) % 5 + 1]
-c For i in [51, 75], Proposition i = Person [(i + 4) / 5] smokes [(i + 4) % 5 + 1] brand of cigar
-c For i in [76, 100], Proposition i = Person [(i + 4) / 5] drinks [(i + 4) % 5 + 1] beverage
-c For i in [101, 125], Proposition i = Person [(i + 4) / 5] has [(i + 4) % 5 + 1] pet
-c For i in [126, 150], Proposition i = House number [(i + 4) / 5] is of colour [(i + 4) % 5 + 1]
-c For i in [151, 175], Proposition i = The owner of house number [(i + 4) / 5] smokes cigar [(i + 4) % 5 + 1]
-c For i in [176, 200], Proposition i = The owner of house number [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
-c For i in [201, 225], Proposition i = The owner of house number [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
-c For i in [226, 250], Proposition i = The owner of the house of colour [(i + 4) / 5] smokes cigar [(i + 4) % 5 + 1]
-c For i in [251, 275], Proposition i = The owner of the house of colour [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
-c For i in [276, 300], Proposition i = The owner of the house of colour [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
-c For i in [301, 325], Proposition i = The person who smokes cigar [(i + 4) / 5] drinks beverage [(i + 4) % 5 + 1]
-c For i in [326, 350], Proposition i = The person who smokes cigar [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
-c For i in [351, 375], Proposition i = The person who drinks beverage [(i + 4) / 5] has pet [(i + 4) % 5 + 1]
+c For i in [1, 25], Proposition i = Person [(i - 1) / 5 + 1] lives in house number [(i - 1) % 5 + 1]
+c For i in [26, 50], Proposition i = Person [(i - 1) / 5 + 1] has a house of colour [(i - 1) % 5 + 1]
+c For i in [51, 75], Proposition i = Person [(i - 1) / 5 + 1] smokes [(i - 1) % 5 + 1] brand of cigar
+c For i in [76, 100], Proposition i = Person [(i - 1) / 5 + 1] drinks [(i - 1) % 5 + 1] beverage
+c For i in [101, 125], Proposition i = Person [(i - 1) / 5 + 1] has [(i - 1) % 5 + 1] pet
+c For i in [126, 150], Proposition i = House number [(i - 1) / 5 + 1] is of colour [(i - 1) % 5 + 1]
+c For i in [151, 175], Proposition i = The owner of house number [(i - 1) / 5 + 1] smokes cigar [(i - 1) % 5 + 1]
+c For i in [176, 200], Proposition i = The owner of house number [(i - 1) / 5 + 1] drinks beverage [(i - 1) % 5 + 1]
+c For i in [201, 225], Proposition i = The owner of house number [(i - 1) / 5 + 1] has pet [(i - 1) % 5 + 1]
+c For i in [226, 250], Proposition i = The owner of the house of colour [(i - 1) / 5 + 1] smokes cigar [(i - 1) % 5 + 1]
+c For i in [251, 275], Proposition i = The owner of the house of colour [(i - 1) / 5 + 1] drinks beverage [(i - 1) % 5 + 1]
+c For i in [276, 300], Proposition i = The owner of the house of colour [(i - 1) / 5 + 1] has pet [(i - 1) % 5 + 1]
+c For i in [301, 325], Proposition i = The person who smokes cigar [(i - 1) / 5 + 1] drinks beverage [(i - 1) % 5 + 1]
+c For i in [326, 350], Proposition i = The person who smokes cigar [(i - 1) / 5 + 1] has pet [(i - 1) % 5 + 1]
+c For i in [351, 375], Proposition i = The person who drinks beverage [(i - 1) / 5 + 1] has pet [(i - 1) % 5 + 1]
 c Here is the complete list of propositions generated using the above rules:
 c 1. The Brit lives in the first house
 c 2. The Brit lives in the second house
@@ -314,7 +314,7 @@ c 262. The owner of the red house drinks coffee
 c 263. The owner of the red house drinks milk
 c 264. The owner of the red house drinks tea
 c 265. The owner of the red house drinks water
-c 266. The owner of the white house drinks beer
+c 266. The owner of the white house drinks beer         // Trump is known to abstain from alcohol, not sure about Biden
 c 267. The owner of the white house drinks coffee
 c 268. The owner of the white house drinks milk
 c 269. The owner of the white house drinks tea
@@ -428,7 +428,7 @@ c 375. The person who drinks water has a horse
 p cnf 375 2699
 c We know that every attribute has a one-to-one correspondence with every other attribute.
 c This implies two things
-c First, each set of five propositions (grouped by [(i + 4) / 5]) has exactly one true proposition.
+c First, each set of five propositions (grouped by [(i - 1) / 5]) has exactly one true proposition.
 c To encode this, we use the conjunction of the following two rules:
 c 1. At least one of the five propositions is true
 1 2 3 4 5 0
@@ -1256,7 +1256,7 @@ c 2. At most one of the five propositions is true
 -373 -374 0
 -373 -375 0
 -374 -375 0
-c Second, similarly, each set of five propositions (grouped by [(i + 4) % 5]) has exactly one true proposition.
+c Second, similarly, each set of five propositions (grouped by [(i - 1) % 5]) has exactly one true proposition.
 c To encode this, we use the conjunction of the following two rules:
 c 1. At least one of the five propositions is true
 1 6 11 16 21 0
