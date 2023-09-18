@@ -1,4 +1,7 @@
-package sat;
+package sat.solver;
+
+import sat.CNFProblem;
+import sat.CNFSolution;
 
 import java.util.Optional;
 

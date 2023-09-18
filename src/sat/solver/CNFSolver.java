@@ -1,6 +1,7 @@
-package sat;
+package sat.solver;
 
-import java.util.HashMap;
+import sat.CNFProblem;
+import sat.CNFSolution;
 
 public interface CNFSolver {
     CNFSolution solve(CNFProblem problem);

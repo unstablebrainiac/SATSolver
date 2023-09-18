@@ -1,4 +1,5 @@
 import sat.*;
+import sat.solver.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
