@@ -17,6 +17,8 @@ public class PuzzleSolverMain {
     private static CNFProblem readProblemFromFile(String filename) throws IOException {
         CNFProblem problem = new CNFProblem();
         // TODO Split by '0' rather than '\n' to support any DIMACS file
+        // This is not a requirement for the assignment, since I have written only one clause per line
+        // ...like all civilized people do
         try (var lines = Files.lines(Path.of(RESOURCES_DIRECTORY, filename))) {
             lines.filter(line -> !line.isBlank())
                     .filter(line -> !line.startsWith("c"))
@@ -64,5 +66,3 @@ public class PuzzleSolverMain {
         }
     }
 }
-
-// 3 7 14 16 25 28 31 37 45 49 54 56 65 68 72 78 84 87 95 96 101 110 114 117 123 130 131 138 142 149 153 156 164 170 172 180 184 188 192 196 202 210 211 219 223 226 235 239 242 248 254 257 263 266 275 280 284 286 293 297 304 306 315 318 322 330 333 337 341 349 353 359 361 370 372 -375
