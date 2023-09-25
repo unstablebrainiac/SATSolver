@@ -22,8 +22,9 @@ public class ExperimentationMain {
         for (float LbyN = 3; LbyN <= 6; LbyN += 0.2f) {
             int L = Math.round(LbyN * N);
             System.out.println("Starting experiments for N = " + N + ", L = " + L);
-            for (long seed = 1; seed <= 100; seed++) {
-                System.out.println("Starting experiment set " + seed);
+            for (int i = 1; i <= 100; i++) {
+                long seed = (long) i * L;
+                System.out.println("Starting experiment set " + i);
                 RandomProblemGenerator randomProblemGenerator = new RandomProblemGenerator(seed);
 
                 long startTime = System.nanoTime();
