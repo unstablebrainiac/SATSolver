@@ -73,6 +73,11 @@ public class CNFProblem {
     }
 
     public List<Clause> getClausesContainingProposition(Integer proposition) {
-        return propositionToClauses.get(proposition);
+        return Optional.ofNullable(propositionToClauses.get(proposition)).orElse(new ArrayList<>());
+    }
+
+    @Override
+    public String toString() {
+        return clauses.stream().map(Clause::toString).collect(Collectors.joining(" AND "));
     }
 }

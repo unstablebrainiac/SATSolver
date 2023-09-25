@@ -8,6 +8,8 @@ public class CNFSolution {
     private boolean isSatisfiable;
     private final Map<Integer, Boolean> assignment;
 
+    private int numDPLLSteps = 0;
+
     public CNFSolution() {
         this.assignment = new HashMap<>();
         this.isSatisfiable = true;
@@ -21,6 +23,7 @@ public class CNFSolution {
     public CNFSolution(CNFSolution solution) {
         this.assignment = new HashMap<>(solution.getAssignment());
         this.isSatisfiable = solution.isSatisfiable();
+        this.numDPLLSteps = solution.getNumDPLLSteps();
     }
 
     public boolean isSatisfiable() {
@@ -61,6 +64,18 @@ public class CNFSolution {
     public void setAssignment(Map<Integer, Boolean> assignment) {
         this.assignment.clear();
         this.assignment.putAll(assignment);
+    }
+
+    public void incrementNumDPLLSteps() {
+        numDPLLSteps++;
+    }
+
+    public int getNumDPLLSteps() {
+        return numDPLLSteps;
+    }
+
+    public void setNumDPLLSteps(int numDPLLSteps) {
+        this.numDPLLSteps = numDPLLSteps;
     }
 
     @Override

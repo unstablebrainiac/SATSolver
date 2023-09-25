@@ -31,6 +31,7 @@ public abstract class DPLLSolver implements CNFSolver {
         if (maybeProposition.isEmpty()) {
             return problem.getClauses().isEmpty();
         }
+        solution.incrementNumDPLLSteps();
         Integer proposition = maybeProposition.get();
 
         CNFProblem problemCopy = new CNFProblem(problem);
@@ -40,6 +41,7 @@ public abstract class DPLLSolver implements CNFSolver {
         if (applyAssignment(proposition, true, problemCopy, solutionCopy)) {
             if (dpll(problemCopy, solutionCopy)) {
                 solution.setAssignment(solutionCopy.getAssignment());
+                solution.setNumDPLLSteps(solutionCopy.getNumDPLLSteps());
                 return true;
             }
         }

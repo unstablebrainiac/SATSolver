@@ -1,3 +1,5 @@
+package main;
+
 import sat.*;
 import sat.solver.*;
 

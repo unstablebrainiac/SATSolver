@@ -3,6 +3,7 @@ package sat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Clause {
     List<Integer> propositions;
@@ -52,6 +53,6 @@ public class Clause {
 
     @Override
     public String toString() {
-        return propositions.toString();
+        return "(" + propositions.stream().map(String::valueOf).collect(Collectors.joining(" OR ")) + ")";
     }
 }
