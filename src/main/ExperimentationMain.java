@@ -5,8 +5,8 @@ import sat.CNFSolution;
 import sat.RandomProblemGenerator;
 import sat.solver.CNFSolver;
 import sat.solver.RandomDPLLSolver;
-import sat.solver.SequentialTwoClauseDPLLSolver;
 import sat.solver.TwoClauseDPLLSolver;
+import sat.solver.TwoClauseMajoritySelectionDPLLSolver;
 
 import java.io.*;
 import java.util.List;
@@ -38,7 +38,7 @@ public class ExperimentationMain {
                 List<CNFSolver> solvers = List.of(
                         new RandomDPLLSolver(seed + 1),
                         new TwoClauseDPLLSolver(seed + 2),
-                        new SequentialTwoClauseDPLLSolver()
+                        new TwoClauseMajoritySelectionDPLLSolver(seed + 3)
                 );
 
                 for (CNFSolver solver : solvers) {

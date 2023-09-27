@@ -55,4 +55,9 @@ public class TwoClauseDPLLSolver extends DPLLSolver {
         int index = random.nextInt(propositionsWithMaxTwoClauses.size());
         return Optional.of(propositionsWithMaxTwoClauses.get(index));
     }
+
+    @Override
+    protected boolean chooseFirstAssignment(Integer proposition, CNFProblem problem, CNFSolution solution) {
+        return random.nextBoolean();
+    }
 }

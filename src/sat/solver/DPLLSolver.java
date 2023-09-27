@@ -41,11 +41,12 @@ public abstract class DPLLSolver implements CNFSolver {
         solution.incrementNumDPLLSteps();
         Integer proposition = maybeProposition.get();
 
+        boolean firstAssignment = chooseFirstAssignment(proposition, problem, solution);
+
         CNFProblem problemCopy = new CNFProblem(problem);
         CNFSolution solutionCopy = new CNFSolution(solution);
 
-//        System.out.println("Trying positive assignment for proposition " + proposition);
-        if (applyAssignment(proposition, true, problemCopy, solutionCopy)) {
+        if (applyAssignment(proposition, firstAssignment, problemCopy, solutionCopy)) {
             if (dpll(problemCopy, solutionCopy, endTime)) {
                 solution.setAssignment(solutionCopy.getAssignment());
                 solution.setNumDPLLSteps(solutionCopy.getNumDPLLSteps());
@@ -56,8 +57,7 @@ public abstract class DPLLSolver implements CNFSolver {
         problemCopy = new CNFProblem(problem);
         solutionCopy = new CNFSolution(solution);
 
-//        System.out.println("Trying negative assignment for proposition " + proposition);
-        if (applyAssignment(proposition, false, problemCopy, solutionCopy)) {
+        if (applyAssignment(proposition, !firstAssignment, problemCopy, solutionCopy)) {
             if (dpll(problemCopy, solutionCopy, endTime)) {
                 solution.setAssignment(solutionCopy.getAssignment());
                 return true;
@@ -68,6 +68,8 @@ public abstract class DPLLSolver implements CNFSolver {
     }
 
     protected abstract Optional<Integer> choosePropositionToAssign(CNFProblem problem, CNFSolution solution);
+
+    protected abstract boolean chooseFirstAssignment(Integer proposition, CNFProblem problem, CNFSolution solution);
 
     private boolean applyUnitPreferenceRule(CNFProblem problem, CNFSolution solution) {
         Optional<Integer> maybeUnitProposition = problem.getClauses()

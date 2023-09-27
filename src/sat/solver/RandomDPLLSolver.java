@@ -27,4 +27,9 @@ public class RandomDPLLSolver extends DPLLSolver {
                 .skip(index)
                 .findFirst();
     }
+
+    @Override
+    protected boolean chooseFirstAssignment(Integer proposition, CNFProblem problem, CNFSolution solution) {
+        return random.nextBoolean();
+    }
 }

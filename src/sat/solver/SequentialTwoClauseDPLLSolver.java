@@ -21,4 +21,9 @@ public class SequentialTwoClauseDPLLSolver extends DPLLSolver {
                         .findFirst()
                 );
     }
+
+    @Override
+    protected boolean chooseFirstAssignment(Integer proposition, CNFProblem problem, CNFSolution solution) {
+        return true;
+    }
 }

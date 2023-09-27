@@ -14,4 +14,9 @@ public class SequentialDPLLSolver extends DPLLSolver {
                 .filter(proposition -> !solution.getAssignment().containsKey(proposition))
                 .findFirst();
     }
+
+    @Override
+    protected boolean chooseFirstAssignment(Integer proposition, CNFProblem problem, CNFSolution solution) {
+        return true;
+    }
 }
