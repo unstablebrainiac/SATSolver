@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 public class CNFSolution {
     private boolean isSatisfiable;
     private final Map<Integer, Boolean> assignment;
-
     private int numDPLLSteps = 0;
+    private boolean isTimedOut = false;
 
     public CNFSolution() {
         this.assignment = new HashMap<>();
@@ -76,6 +76,14 @@ public class CNFSolution {
 
     public void setNumDPLLSteps(int numDPLLSteps) {
         this.numDPLLSteps = numDPLLSteps;
+    }
+
+    public boolean isTimedOut() {
+        return isTimedOut;
+    }
+
+    public void setTimedOut(boolean isTimedOut) {
+        this.isTimedOut = isTimedOut;
     }
 
     @Override

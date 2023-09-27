@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class PuzzleSolverMain {
@@ -36,7 +37,7 @@ public class PuzzleSolverMain {
         return problem;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, TimeoutException {
         long startTime = System.nanoTime();
         CNFProblem problem = readProblemFromFile(PUZZLE_FILE);
         long endTime = System.nanoTime();
@@ -54,7 +55,7 @@ public class PuzzleSolverMain {
             CNFProblem problemCopy = new CNFProblem(problem);
             System.out.println("Solving with " + solver.getClass().getSimpleName());
             startTime = System.nanoTime();
-            CNFSolution solution = solver.solve(problemCopy);
+            CNFSolution solution = solver.solve(problemCopy, 0);
             endTime = System.nanoTime();
             System.out.println(solution);
             solutions.add(solution);

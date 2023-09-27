@@ -5,18 +5,25 @@ import sat.CNFSolution;
 import sat.Clause;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public abstract class DPLLSolver implements CNFSolver {
 
     @Override
-    public CNFSolution solve(CNFProblem problem) {
+    public CNFSolution solve(CNFProblem problem, long timeoutInMs) throws TimeoutException {
+        long startTime = System.currentTimeMillis();
+        long endTime = timeoutInMs == 0 ? 0 : startTime + timeoutInMs;
         CNFSolution solution = new CNFSolution(new HashMap<>(), true);
-        boolean satisfiable = dpll(problem, solution);
+        boolean satisfiable = dpll(problem, solution, endTime);
         solution.setSatisfiable(satisfiable);
         return solution;
     }
 
-    private boolean dpll(CNFProblem problem, CNFSolution solution) {
+    private boolean dpll(CNFProblem problem, CNFSolution solution, long endTime) throws TimeoutException {
+        // Check if we have timed out
+        if (endTime != 0 && System.currentTimeMillis() > endTime) {
+            throw new TimeoutException();
+        }
         // Keep applying unit preference rule until there are no more unit clauses
         while (applyUnitPreferenceRule(problem, solution)) {
             if (!solution.isSatisfiable()) {
@@ -39,7 +46,7 @@ public abstract class DPLLSolver implements CNFSolver {
 
 //        System.out.println("Trying positive assignment for proposition " + proposition);
         if (applyAssignment(proposition, true, problemCopy, solutionCopy)) {
-            if (dpll(problemCopy, solutionCopy)) {
+            if (dpll(problemCopy, solutionCopy, endTime)) {
                 solution.setAssignment(solutionCopy.getAssignment());
                 solution.setNumDPLLSteps(solutionCopy.getNumDPLLSteps());
                 return true;
@@ -51,7 +58,7 @@ public abstract class DPLLSolver implements CNFSolver {
 
 //        System.out.println("Trying negative assignment for proposition " + proposition);
         if (applyAssignment(proposition, false, problemCopy, solutionCopy)) {
-            if (dpll(problemCopy, solutionCopy)) {
+            if (dpll(problemCopy, solutionCopy, endTime)) {
                 solution.setAssignment(solutionCopy.getAssignment());
                 return true;
             }
