@@ -45,7 +45,7 @@ public class ExperimentationMain {
                     CNFProblem problemCopy = new CNFProblem(problem);
                     startTime = System.nanoTime();
                     try {
-                        CNFSolution solution = solver.solve(problemCopy, 5 * 60 * 1000);
+                        CNFSolution solution = solver.solve(problemCopy, 2 * 60 * 1000);
                         endTime = System.nanoTime();
                         System.out.println("Time to solve with " + solver.getClass().getSimpleName() + ": " + (endTime - startTime) / 1_000_000 + " ms");
                         writeResultsToFile(LbyN, N, L, seed, problem, solver.getClass().getSimpleName(), solution, (endTime - startTime) / 1_000_000);
