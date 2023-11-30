@@ -8,4 +8,4 @@ Initially, the project focuses on handling CNF inputs exclusively. It begins by 
 
 ## Usage
 
-Run the main class `PuzzleSolverMain` to solve the sample puzzle defined in the file `resources/puzzle.cnf`, using several different implementations of the DPLL Algorithm, and to assert the equality of their results.
+Run the sat.main class `PuzzleSolverMain` to solve the sample puzzle defined in the file `resources/puzzle.cnf`, using several different implementations of the DPLL Algorithm, and to assert the equality of their results.
